@@ -1,9 +1,9 @@
-# TA-thehive
-This add-on is designed to add alert action on Splunk to create alerts in [The Hive](https://thehive-project.org/)
+This is an add-on powered by the Splunk Add-on Builder.
+It is designed to add alert action on Splunk to create alerts in [The Hive](https://thehive-project.org/)
 
 # Installation
 This app is designed to run on Splunk Search Head(s) on Linux plateforms
-1. Download this [file](TA-thehive.tar.gz) which is the Splunk TA ( it is an archive containing the sub-directory TA-thehive)
+1. Download TA-thehive.tar.gz
 2. Install the app on your Splunk Search Head(s): "Manage Apps" -> "Install app from file"
 3. Restart Splunk (for later updates, you may skip this step)
 4. At next logon, launch the app (Manage Apps > TA-thehive > launch app)
@@ -21,18 +21,3 @@ This app is designed to run on Splunk Search Head(s) on Linux plateforms
 	- standard datatypes are included at first configuration of the app
 	- then you can defined additional field (from datamodel) mapping to datatype e.g. on Splunk field _src_ (from datamodel Web) can be mapped to datatype _ip_, _dest_ to _domain_ etc. (in versions 1.x, filed name had to match datatypes)
 9. This lookup can be edited to add custom datatypes in the same way.
-
-# Use Cases
-
-Here some activities you may carry out more easily with this app.
-## Hunting in Splunk logs
-saved searches in Splunk > on match create an alert on [TheHive](https://thehive-project.org/) or (later) any security incident response platform of your choice.
-
-# Usage
-Splunk alerts to [create TheHive alerts](docs/thehivealerts.md)
-
-# Credits
-The alert_action for TheHive is inpired by [this Splunk app](https://splunkbase.splunk.com/app/3642/)
-
-# Licence
-This app TA-thehive is licensed under the GNU Lesser General Public License v3.0.
