@@ -1,0 +1,115 @@
+<form class="form-horizontal form-complex">
+<div class="control-group">
+	<label class="control-label" for="thehive_ce_alert_th_instance">TheHive instance <span class="required">*</span> </label>
+    <div class="controls">
+	<input type="text" name="action.thehive_ce_alert.param.th_instance" id="thehive_ce_alert_th_instance"/>
+                <span class="help-block"> 
+                    Indicates one of the instances defined in lookup 'thehive_instances.csv'
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="thehive_ce_alert_th_case_template">Case Template  </label>
+    <div class="controls">
+	<input type="text" name="action.thehive_ce_alert.param.th_case_template" id="thehive_ce_alert_th_case_template"/>
+                <span class="help-block"> 
+                    The case template to use for imported alerts.
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="thehive_ce_alert_th_type">Type  </label>
+    <div class="controls">
+	<input type="text" name="action.thehive_ce_alert.param.th_type" id="thehive_ce_alert_th_type"/>
+                <span class="help-block"> 
+                    The alert type. Defaults to "alert".
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="thehive_ce_alert_th_source">Source  </label>
+    <div class="controls">
+	<input type="text" name="action.thehive_ce_alert.param.th_source" id="thehive_ce_alert_th_source"/>
+                <span class="help-block"> 
+                    The alert source. Defaults to "splunk".
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="thehive_ce_alert_th_unique_id">Unique ID  </label>
+    <div class="controls">
+	<input type="text" name="action.thehive_ce_alert.param.th_unique_id" id="thehive_ce_alert_th_unique_id"/>
+                <span class="help-block"> 
+                    A field name that contains a unique identifier specific to the source event.
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="thehive_ce_alert_th_title">Title  </label>
+    <div class="controls">
+	<input type="text" name="action.thehive_ce_alert.param.th_title" id="thehive_ce_alert_th_title"/>
+                <span class="help-block"> 
+                    The title to use for created alerts. IMPORTANT you can specify a field name that contains the title text..
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="thehive_ce_alert_th_description">Description  </label>
+    <div class="controls">
+	<input type="text" name="action.thehive_ce_alert.param.th_description" id="thehive_ce_alert_th_description"/>
+                <span class="help-block"> 
+                    The description to send with the alert. IMPORTANT You can specify a field name that contains the description text.
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="thehive_ce_alert_th_tags">Tag(s)  </label>
+    <div class="controls">
+	<input type="text" name="action.thehive_ce_alert.param.th_tags" id="thehive_ce_alert_th_tags"/>
+                <span class="help-block"> 
+                    Use single comma-separated string without quotes for multiple tags (ex. "badIP,spam").
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="thehive_ce_alert_th_severity">Severity <span class="required">*</span> </label>
+    <div class="controls">
+<select name="action.thehive_ce_alert.param.th_severity" id="thehive_ce_alert_th_severity">
+        <option value="2">Medium</option>
+        <option value="1">Low</option>
+        <option value="3">High</option>
+</select>
+                <span class="help-block"> 
+                    Select the severity of the created alert. Defaults is High
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="thehive_ce_alert_th_tlp">TLP: <span class="required">*</span> </label>
+    <div class="controls">
+<select name="action.thehive_ce_alert.param.th_tlp" id="thehive_ce_alert_th_tlp">
+        <option value="0">WHITE</option>
+        <option value="1">GREEN</option>
+        <option value="2">AMBER</option>
+        <option value="3">RED</option>
+</select>
+                <span class="help-block"> 
+                    Select the TLP level of the created alert. Default is TLP:AMBER
+                </span>
+    </div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="thehive_ce_alert_th_pap">PAP: <span class="required">*</span> </label>
+    <div class="controls">
+<select name="action.thehive_ce_alert.param.th_pap" id="thehive_ce_alert_th_pap">
+        <option value="0">WHITE</option>
+        <option value="1">GREEN</option>
+        <option value="2">AMBER</option>
+        <option value="3">RED</option>
+</select>
+                <span class="help-block"> 
+                    Permissible Action Protocol. Default to PAP:AMBER
+                </span>
+    </div>
+</div>
+</form>

@@ -1,0 +1,19 @@
+[props/fake_input_tobedeleted_donotuse]
+owner = admin
+version = 7.3.0
+modtime = 1575407840.728304000
+
+[props/source%3A%3A...ta-thehive-ce%2A.log%2A]
+owner = admin
+version = 7.3.0
+modtime = 1575407841.048447000
+
+[props/source%3A%3A...ta_thehive_ce%2A.log%2A]
+owner = admin
+version = 7.3.0
+modtime = 1575407841.267277000
+
+[props/source%3A%3A...thehive_ce_alert_modalert.log%2A]
+owner = admin
+version = 7.3.0
+modtime = 1575409287.473437000

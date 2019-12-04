@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0.0",
+  "info": {
+    "title": "thehive-ce",
+    "id": {
+      "group": null,
+      "name": "TA-thehive-ce",
+      "version": "1.0.0"
+    },
+    "author": [
+      {
+        "name": "remg427@gmail.com",
+        "email": null,
+        "company": null
+      }
+    ],
+    "releaseDate": "2019-12-05",
+    "description": "TA TheHive Cloud Edition (it provides action to create alerts in thehive)",
+    "classification": {
+      "intendedAudience": null,
+      "categories": [],
+      "developmentStatus": null
+    },
+    "commonInformationModels": null,
+    "license": {
+      "name": null,
+      "text": null,
+      "uri": null
+    },
+    "privacyPolicy": {
+      "name": null,
+      "text": null,
+      "uri": null
+    },
+    "releaseNotes": {
+      "name": null,
+      "text": null,
+      "uri": null
+    }
+  },
+  "dependencies": {
+  },
+  "tasks": [],
+  "inputGroups": {
+  },
+  "incompatibleApps": {
+  },
+  "platformRequirements": {
+    "splunk": {
+      "Enterprise": "*"
+    }
+  }
+}
