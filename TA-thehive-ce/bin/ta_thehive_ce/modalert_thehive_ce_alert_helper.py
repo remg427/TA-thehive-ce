@@ -45,13 +45,13 @@ __email__ = "remg427@gmail.com"
 
 
 def create_datatype_lookup():
-    # if it does not exist, create thehive_observables.csv
+    # if it does not exist, create thehive_datatypes.csv
     _SPLUNK_PATH = os.environ['SPLUNK_HOME']
     directory = _SPLUNK_PATH + os.sep + 'etc' + os.sep + 'apps' \
         + os.sep + 'TA-thehive-ce' + os.sep + 'lookups'
     thehive_datatypes = directory + os.sep + 'thehive_datatypes.csv'
     if not os.path.exists(thehive_datatypes):
-        # file thehive_datatypes_v2.csv doesn't exist. Create the file
+        # file thehive_datatypes.csv doesn't exist. Create the file
         observables = [['field_name', 'datatype', 'regex', 'description'],
                        ['autonomous-system', 'autonomous-system', '', ''],
                        ['domain', 'domain', '', ''],
@@ -84,7 +84,7 @@ def prepare_alert_config(helper):
     config_args = dict()
     # get TheHive instance to be used
     th_instance = helper.get_param("th_instance")
-    # open lookups/thehive_csv_instance_list.csv
+    # open lookups/thehive_instance_list.csv
     _SPLUNK_PATH = os.environ['SPLUNK_HOME']
     app_name = "TA-thehive-ce"
     csv_instance_list = _SPLUNK_PATH + os.sep + 'etc' + os.sep + 'apps' \
@@ -252,7 +252,7 @@ def create_alert(helper, config, results):
                 for row in csv_reader:
                     if 'field_name' in row:
                         dataType[row['field_name']]=row['datatype']
-        except IOError:  # file thehive_instances.csv not readable
+        except IOError:  # file thehive_datatypes.csv not readable
             helper.log_info('file thehive_datatypes.csv absent or not readable')
     else:
         create_datatype_lookup()
