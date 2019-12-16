@@ -57,5 +57,5 @@ class AlertActionWorkerthehive_ce_alert(ModularAlertBase):
         return status
 
 if __name__ == "__main__":
-    exitcode = AlertActionWorkerthehive_ce_alert("TA-thehive-ce", "thehive_ce_alert").run(sys.argv)
+    exitcode = AlertActionWorkerthehive_ce_alert("TA_thehive_ce", "thehive_ce_alert").run(sys.argv)
     sys.exit(exitcode)

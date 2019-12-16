@@ -150,7 +150,7 @@
                                 }
                             ], 
                             "defaultValue": "", 
-                            "help": "Set the API key of instance(s) of TheHive (see documentation on https://github.com/remg427/TA-thehive-ce", 
+                            "help": "Set the API key of instance(s) of TheHive (see documentation on https://github.com/remg427/TA_thehive_ce", 
                             "type": "text", 
                             "required": true, 
                             "encrypted": true
@@ -329,7 +329,7 @@
     "meta": {
         "version": "1.0.0", 
         "apiVersion": "3.0.0", 
-        "name": "TA-thehive-ce", 
+        "name": "TA_thehive_ce", 
         "restRoot": "TA_thehive_ce", 
         "displayName": "thehive-ce"
     }

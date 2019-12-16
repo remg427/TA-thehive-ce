@@ -53,7 +53,7 @@ class ModInputfake_input_tobedeleted_donotuse(modinput_wrapper.base_modinput.Bas
         return scheme
 
     def get_app_name(self):
-        return "TA-thehive-ce"
+        return "TA_thehive_ce"
 
     def validate_input(self, definition):
         """validate the input stanza"""

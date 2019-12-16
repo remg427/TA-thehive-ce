@@ -48,7 +48,7 @@ def create_datatype_lookup():
     # if it does not exist, create thehive_datatypes.csv
     _SPLUNK_PATH = os.environ['SPLUNK_HOME']
     directory = _SPLUNK_PATH + os.sep + 'etc' + os.sep + 'apps' \
-        + os.sep + 'TA-thehive-ce' + os.sep + 'lookups'
+        + os.sep + 'TA_thehive_ce' + os.sep + 'lookups'
     thehive_datatypes = directory + os.sep + 'thehive_datatypes.csv'
     if not os.path.exists(thehive_datatypes):
         # file thehive_datatypes.csv doesn't exist. Create the file
@@ -86,7 +86,7 @@ def prepare_alert_config(helper):
     th_instance = helper.get_param("th_instance")
     # open lookups/thehive_instance_list.csv
     _SPLUNK_PATH = os.environ['SPLUNK_HOME']
-    app_name = "TA-thehive-ce"
+    app_name = "TA_thehive_ce"
     csv_instance_list = _SPLUNK_PATH + os.sep + 'etc' + os.sep + 'apps' \
         + os.sep + app_name + os.sep + 'lookups' \
         + os.sep + 'thehive_instance_list.csv'
@@ -154,7 +154,7 @@ def prepare_alert_config(helper):
     else:
         helper.log_error("lookups/thehive_instance_list.csv does not exist. \
             Please check install instructions \
-            https://github.com/remg427/TA-thehive-ce.")
+            https://github.com/remg427/TA_thehive_ce.")
         return None
     # get clear version of thehive_key
     # get session key
@@ -242,7 +242,7 @@ def create_alert(helper, config, results):
     dataType = {}
     _SPLUNK_PATH = os.environ['SPLUNK_HOME']
     directory = _SPLUNK_PATH + os.sep + 'etc' + os.sep + 'apps' \
-        + os.sep + 'TA-thehive-ce' + os.sep + 'lookups'
+        + os.sep + 'TA_thehive_ce' + os.sep + 'lookups'
     thehive_datatypes = directory + os.sep + 'thehive_datatypes.csv'
     if os.path.exists(thehive_datatypes):
         try:

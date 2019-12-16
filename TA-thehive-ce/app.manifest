@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
   "info": {
-    "title": "thehive-ce",
+    "title": "TheHive_CE",
     "id": {
       "group": null,
-      "name": "TA-thehive-ce",
+      "name": "TA_thehive_ce",
       "version": "1.0.0"
     },
     "author": [

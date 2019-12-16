@@ -2,7 +2,7 @@
 This TA provides an adaptative response/alert action. It takes the result of a search and creates an alert on [TheHive](https://thehive-project.org)
 The overall process is as follows:
 - search for events & collect observables
-- rename splunk fields to match the field names listed in the lookup table thehive_datatypes.csv. If you haven't created it before the first alert, it will be initialised with the default datatypes (see [example file](TA-thehive-ce/README/thehive_datatypes.csv.sample))
+- rename splunk fields to match the field names listed in the lookup table thehive_datatypes.csv. If you haven't created it before the first alert, it will be initialised with the default datatypes (see [example file](TA_thehive_ce/README/thehive_datatypes.csv.sample))
 - set the alert action: it will create an alert into TheHive with those values
 - you can pass additional info, modfify title, description, etc. directly from list of fields
 
