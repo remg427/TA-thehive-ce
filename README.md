@@ -1,14 +1,14 @@
 # TA_thehive_ce
 This TA provides an adaptative response/alert action to create an alert on [TheHive](https://thehive-project.org).
 This App is a version for Splunk Cloud (it can be used on Splunk Enterprise without problem).  
-The main change with [TA-thehive](https://github.com/remg427/TA-thehive/) is that this version uses **only a lookup table thehive_instance_list.csv** instead of creating modular inputs to set the parameters to reach your TheHive instances. 
+The main change with [TA_thehive_ce](https://github.com/remg427/TA-hehive-ce/) is that this version uses **only a lookup table thehive_instance_list.csv** instead of creating modular inputs to set the parameters to reach your TheHive instances. 
 
 # Installation
 This app is designed to run on Splunk Search Head(s) on Linux plateforms
-1. Download the app directly on splunkbase or this [file](TA_thehive_ce.tar.gz) which is the Splunk TA ( it is an archive containing the sub-directory TA-thehive)
+1. Download the app directly on splunkbase or this [file](TA_thehive_ce.tar.gz) which is the Splunk TA ( it is an archive containing the sub-directory TA_thehive_ce)
 2. Install the app on your Splunk Search Head(s): "Manage Apps" -> "Install app from file" or ask Splunk to install it on your Splunk Cloud instance.
 3. Restart Splunk (for later updates, you may skip this step)
-4. At next logon, launch the app (Manage Apps > TA-thehive > launch app)
+4. At next logon, launch the app (Manage Apps > TheHive CE > launch app)
 5. Configure proxy, logging level
 6. **Save TheHive Api key value under thehive_api_key1, thehive_api_key2 or thehive_api_key3 input fields**
 7. With lookup editor or other means, **import the CSV table of TheHive instances** [thehive_instance_list.csv.sample](TA_thehive_ce/README/thehive_instance_list.csv.sample) with the name being **thehive_instance_list.csv** (**IMPORTANT for script to work**). Please note that you can upload another file provided the column names are the same.
@@ -42,4 +42,4 @@ Splunk alerts to [create TheHive alerts](docs/thehivealerts.md)
 The alert_action for TheHive was inpired by [this Splunk app](https://splunkbase.splunk.com/app/3642/)
 
 # Licence
-This app TA-thehive is licensed under the GNU Lesser General Public License v3.0.
+This app TA_thehive_ce is licensed under the GNU Lesser General Public License v3.0.

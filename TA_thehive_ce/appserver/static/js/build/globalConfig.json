@@ -331,6 +331,6 @@
         "apiVersion": "3.0.0", 
         "name": "TA_thehive_ce", 
         "restRoot": "TA_thehive_ce", 
-        "displayName": "thehive-ce"
+        "displayName": "TheHive CE"
     }
 }
