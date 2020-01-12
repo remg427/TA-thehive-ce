@@ -1,6 +1,6 @@
-
 import ta_thehive_ce_declare
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
 from splunktaucclib.rest_handler.endpoint import (
     field,
     validator,

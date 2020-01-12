@@ -6,11 +6,9 @@ import time
 import datetime
 import json
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
 import modinput_wrapper.base_modinput
 from solnlib.packages.splunklib import modularinput as smi
-
-
-
 import input_module_fake_input_tobedeleted_donotuse as input_module
 
 bin_dir = os.path.basename(__file__)

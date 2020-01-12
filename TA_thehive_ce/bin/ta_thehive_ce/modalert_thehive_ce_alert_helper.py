@@ -31,6 +31,7 @@ import csv
 import gzip
 import json
 import os
+import re
 import requests
 import time
 #from splunk.clilib import cli_common as cli
@@ -114,10 +115,17 @@ def prepare_alert_config(helper):
                         if row['thehive_instance'] == th_instance:
                             found_instance = True
                             th_url = row['thehive_url']
+                            # validate that the url starts with 'https://' 
+                            # requirement for Cloud Edition
+                            match = re.match("^https:\/\/[0-9a-zA-Z\-\.]+(?:\:\d+)?", th_url)
+                            if match is None:
+                                helper.log_error("FATAL thehive_url does not start with 'https://'; \
+                                    Please edit thehive_instance_list.csv to fix this.")
+                                return None                                
                             if th_url.endswith('/'):
-                                config_args['thehive_url'] = row['thehive_url'] + 'api/alert'
+                                config_args['thehive_url'] = th_url + 'api/alert'
                             else:
-                                config_args['thehive_url'] = row['thehive_url'] + '/api/alert'
+                                config_args['thehive_url'] = th_url + '/api/alert'
                             helper.log_info("config_args['thehive_url'] {}".format(config_args['thehive_url']))
                             api_key_name = row['thehive_api_key_name']
                             if api_key_name in ['thehive_api_key1', 'thehive_api_key2', 'thehive_api_key3']:
@@ -162,8 +170,9 @@ def prepare_alert_config(helper):
     splunkService = client.connect(token=sessionKey)
     storage_passwords = splunkService.storage_passwords
     config_args['thehive_key'] = None
+    # from the thehive_api_key defined in the lookup table
+    # securely retrive the API key value from storage_password
     for credential in storage_passwords:
-#        usercreds = {'username':credential.content.get('username'),'password':credential.content.get('clear_password')}
         if api_key_name in credential.content.get('clear_password'):
             th_instance_key = json.loads(credential.content.get('clear_password'))
             config_args['thehive_key'] = str(th_instance_key[api_key_name])
@@ -403,11 +412,12 @@ def create_alert(helper, config, results):
             response = requests.post(url, headers=headers, data=payload,
                                      verify=False, cert=client_cert,
                                      proxies=config['proxies'])
-            helper.log_info("INFO theHive server responded with HTTP status {}".format(response.status_code))
+            if str(response.status_code) == "200" or str(response.status_code) == "201":
+                helper.log_info("INFO theHive server responded with HTTP status {}".format(response.status_code))
+            else:
+                helper.log_error("ERROR theHive server responded with HTTP status {}".format(response.status_code))
             # check if status is anything other than 200; throw an exception if it is
             response.raise_for_status()
-            # response is 200 by this point or we would have thrown an exception
-            helper.log_info("theHive server response is 200")
 
     # somehow we got a bad response code from thehive
     except requests.exceptions.HTTPError as e:
