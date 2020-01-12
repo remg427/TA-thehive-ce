@@ -1,17 +1,17 @@
-# TA-thehive-ce
+# TA_thehive_ce
 This TA provides an adaptative response/alert action to create an alert on [TheHive](https://thehive-project.org).
 This App is a version for Splunk Cloud (it can be used on Splunk Enterprise without problem).  
-The main change with [TA-thehive](https://github.com/remg427/TA-thehive/) is that this version uses **only a lookup table thehive_instance_list.csv** instead of creating modular inputs to set the parameters to reach your TheHive instances. 
+The main change with [TA_thehive_ce](https://github.com/remg427/TA-hehive-ce/) is that this version uses **only a lookup table thehive_instance_list.csv** instead of creating modular inputs to set the parameters to reach your TheHive instances. 
 
 # Installation
 This app is designed to run on Splunk Search Head(s) on Linux plateforms
-1. Download the app directly on splunkbase or this [file](TA-thehive-ce.tar.gz) which is the Splunk TA ( it is an archive containing the sub-directory TA-thehive)
+1. Download the app directly on splunkbase or this [file](TA_thehive_ce.tar.gz) which is the Splunk TA ( it is an archive containing the sub-directory TA_thehive_ce)
 2. Install the app on your Splunk Search Head(s): "Manage Apps" -> "Install app from file" or ask Splunk to install it on your Splunk Cloud instance.
 3. Restart Splunk (for later updates, you may skip this step)
-4. At next logon, launch the app (Manage Apps > TA-thehive > launch app)
+4. At next logon, launch the app (Manage Apps > TheHive CE > launch app)
 5. Configure proxy, logging level
 6. **Save TheHive Api key value under thehive_api_key1, thehive_api_key2 or thehive_api_key3 input fields**
-7. With lookup editor or other means, **import the CSV table of TheHive instances** [thehive_instance_list.csv.sample](TA-thehive-ce/README/thehive_instance_list.csv.sample) with the name being **thehive_instance_list.csv** (**IMPORTANT for script to work**). Please note that you can upload another file provided the column names are the same.
+7. With lookup editor or other means, **import the CSV table of TheHive instances** [thehive_instance_list.csv.sample](TA_thehive_ce/README/thehive_instance_list.csv.sample) with the name being **thehive_instance_list.csv** (**IMPORTANT for script to work**). Please note that you can upload another file provided the column names are the same.
 8. Edit this lookup table to point to your TheHive instance(s)
     - provide a name under column 'thehive_instance' - this is the name you are going to use in alert form or sendalert command
     - provide the base URL to your TH instance, ( /api/alert will be added to it to reach the endpoint)
@@ -20,7 +20,7 @@ This app is designed to run on Splunk Search Head(s) on Linux plateforms
     - if applicable, provide the path to the certificate of thehive instance (it implies a check of the certificate)
     - use (or not) the proxy for this instance:: use only True or False
     - provide client certificate if required (and check the box to use it - use only True or False)
-6. Parameters are saved under TA-thehive-ce/lookups/thehive_instance_list.csv
+6. Parameters are saved under TA_thehive_ce/lookups/thehive_instance_list.csv
 7. **Important: Role(s)/user(s) configuring this app must have the capability to "list_storage_passwords"** (as API KEYs and proxy password(s) are safely stored encrypted ). It looks like that this capability is not required to set the alert
 8. In addition, a CSV file is saved under **lookups/thehive_datatypes.csv**. It contains a mapping between field names and datatypes
 	- standard datatypes are included at first alert if the file does not exist yet.
@@ -42,4 +42,4 @@ Splunk alerts to [create TheHive alerts](docs/thehivealerts.md)
 The alert_action for TheHive was inpired by [this Splunk app](https://splunkbase.splunk.com/app/3642/)
 
 # Licence
-This app TA-thehive is licensed under the GNU Lesser General Public License v3.0.
+This app TA_thehive_ce is licensed under the GNU Lesser General Public License v3.0.

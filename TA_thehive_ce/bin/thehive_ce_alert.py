@@ -5,6 +5,7 @@ import ta_thehive_ce_declare
 
 import os
 import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
 
 from alert_actions_base import ModularAlertBase
 import modalert_thehive_ce_alert_helper
@@ -57,5 +58,5 @@ class AlertActionWorkerthehive_ce_alert(ModularAlertBase):
         return status
 
 if __name__ == "__main__":
-    exitcode = AlertActionWorkerthehive_ce_alert("TA-thehive-ce", "thehive_ce_alert").run(sys.argv)
+    exitcode = AlertActionWorkerthehive_ce_alert("TA_thehive_ce", "thehive_ce_alert").run(sys.argv)
     sys.exit(exitcode)
