@@ -18,11 +18,13 @@ def use_single_instance_mode():
     return True
 '''
 
+
 def validate_input(helper, definition):
     """Implement your own validation logic to validate the input stanza configurations"""
     # This example accesses the modular input variable
     # fake_input_parameter = definition.parameters.get('fake_input_parameter', None)
     pass
+
 
 def collect_events(helper, ew):
     """Implement your data collection logic here
