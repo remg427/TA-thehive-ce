@@ -54,10 +54,15 @@ class AlertActionWorkerthehive_ce_alert(ModularAlertBase):
                 self, *args, **kwargs
             )
         except (AttributeError, TypeError) as ae:
-            self.log_error(
-                "Error:  Please double check spelling and also verify that a \
-compatible version of Splunk_SA_CIM is installed."
-            )
+            if ae.message:
+                self.log_error(
+                    "Error: {}. Please double check spelling and also verify \
+that a compatible version of Splunk_SA_CIM is installed.".format(ae.message)
+                )
+            else:
+                msg = "Unexpected error: {}."
+                import traceback
+                self.log_error(msg.format(traceback.format_exc()))
             return 4
         except Exception as e:
             msg = "Unexpected error: {}."
