@@ -198,18 +198,22 @@ def create_alert(helper, config, results, app_name):
                 if ':' in key:
                     dType = key.split(':', 1)
                     key = str(dType[0])
-                    cMsg = artifactMessage + '&msg: ' + str(dType[1])
+                    custom_msg = str(dType[1])
                     if key not in dataType:
                         cKey = 'other'
                     else:
                         cKey = dataType[key]
-                    cMsg = cMsg + ' - field: ' + str(key)
                 elif key in dataType:
                     cKey = dataType[key]
-                    cMsg = artifactMessage + ' - field: ' + str(key)
+                    custom_msg = ''
                 else:
                     cKey = 'other'
-                    cMsg = artifactMessage + ' - field: ' + str(key)
+                    custom_msg = ''
+                cMsg = 'field: ' + str(key)
+                if custom_msg not in [None, '']:
+                    cMsg = custom_msg + ' - ' + cMsg
+                if artifactMessage not in [None, '']:
+                    cMsg = artifactMessage + ' - ' + cMsg
                 if '\n' in value:  # was a multivalue field
                     helper.log_debug(
                         'value is not a simple string {} '.format(value)

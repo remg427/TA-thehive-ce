@@ -5,7 +5,7 @@
     "id": {
       "group": null,
       "name": "TA_thehive_ce",
-      "version": "1.0.3"
+      "version": "1.1.0"
     },
     "author": [
       {
@@ -15,7 +15,7 @@
       }
     ],
     "releaseDate": "2020-05-13",
-    "description": "TA TheHive Cloud Edition (it provides action to create alerts in thehive)",
+    "description": "TA TheHive Cloud Edition",
     "classification": {
       "intendedAudience": null,
       "categories": [],

@@ -48,21 +48,27 @@ class HiveCollectCommand(GeneratingCommand):
         as described in lookup/thehive_instance_list.csv.''',
         require=True)
     # MANDATORY: json_request XOR alertid XOR last XOR date
-    json_request = Option(
-        doc='''
-        **Syntax:** **json_request=***valid JSON request*
-        **Description:**Valid JSON request''',
-        require=False)
-    alertid = Option(
-        doc='''
-        **Syntax:** **alertid=***id1(,id2,...)*
-        **Description:**list of alert ID(s) or event UUID(s).''',
-        require=False, validate=validators.Match("alertid", r"^[0-9a-f,\-]+$"))
+    # json_request = Option(
+    #     doc='''
+    #     **Syntax:** **json_request=***valid JSON request*
+    #     **Description:**Valid JSON request''',
+    #     require=False)
+    # alertid = Option(
+    #     doc='''
+    #     **Syntax:** **alertid=***id1(,id2,...)*
+    #     **Description:**list of alert ID(s) or event UUID(s).''',
+    #     require=False, validate=validators.Match("alertid", r"^[0-9a-f,\-]+$"))
     endpoint = Option(
         doc='''
-        **Syntax:** **endpoint=***valert|case*
-        **Description:**Valid JSON request''',
-        require=False)
+        **Syntax:** **endpoint=***alert|case*
+        **Description:**endpoint of TheHive API''',
+        require=False, validate=validators.Match("endpoint", r"^(alert)$"))
+    range = Option(
+        doc='''
+        **Syntax:** **range=***val|start_number-end_number*
+        **Description:**valid range to limit number of alerts returned.
+        for example range=all or range=10-100''',
+        require=False, validate=validators.Match("range", r"^(all|\d+\-\d+)$"))
 
     def log_error(self, msg):
         logging.error(msg)
@@ -123,6 +129,10 @@ class HiveCollectCommand(GeneratingCommand):
         else:
             self.endpoint = 'alert'
             my_args['thehive_url'] = my_args['thehive_url'] + '/api/alert'
+        if self.range is not None:
+            my_args['range'] = str(self.range)
+        else:
+            my_args['range'] = "0-10"
         # check that ONE of mandatory fields is present
 
         # body_dict = dict()
@@ -153,7 +163,7 @@ class HiveCollectCommand(GeneratingCommand):
             "Authorization": "Bearer {}".format(my_args['thehive_key'])
         }
         params = {
-            "range": "all"
+            "range": my_args['range']
         }
         # # Search pagination
         # pagination = True
