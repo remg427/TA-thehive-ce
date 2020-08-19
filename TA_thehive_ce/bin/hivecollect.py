@@ -53,16 +53,16 @@ class HiveCollectCommand(GeneratingCommand):
     #     **Syntax:** **json_request=***valid JSON request*
     #     **Description:**Valid JSON request''',
     #     require=False)
-    # alertid = Option(
-    #     doc='''
-    #     **Syntax:** **alertid=***id1(,id2,...)*
-    #     **Description:**list of alert ID(s) or event UUID(s).''',
-    #     require=False, validate=validators.Match("alertid", r"^[0-9a-f,\-]+$"))
+    objectid = Option(
+        doc='''
+        **Syntax:** **objectid=***id1(,id2,...)*
+        **Description:**ID.''',
+        require=False, validate=validators.Match("objectid", r"^([0-9a-f]|\w{20})+$"))
     endpoint = Option(
         doc='''
         **Syntax:** **endpoint=***alert|case*
         **Description:**endpoint of TheHive API''',
-        require=False, validate=validators.Match("endpoint", r"^(alert)$"))
+        require=False, validate=validators.Match("endpoint", r"^(alert|case)$"))
     range = Option(
         doc='''
         **Syntax:** **range=***val|start_number-end_number*
@@ -113,6 +113,40 @@ class HiveCollectCommand(GeneratingCommand):
 
         return record
 
+    def displayResponse(results, action, host):
+
+        encoder = json.JSONEncoder(ensure_ascii=False, separators=(',', ':'))
+        if action == 'list_alert' or action == 'list_case':
+            attribute_names = list()
+            serial_number = 0
+            for a in results:
+                if serial_number == 0:
+                    for k in list(a.keys()):
+                        attribute_names.append(k)
+                if action == 'list_alert':
+                    timestamp = int(a['date'] / 1000)
+                elif action == 'list_case':
+                    timestamp = int(a['startDate'] / 1000)
+                yield HiveCollectCommand._record(
+                    serial_number, timestamp, host, a, attribute_names, encoder)
+                serial_number += 1
+                GeneratingCommand.flush
+        elif action == 'get_an_alert' or action == 'get_a_case':
+            attribute_names = list()
+            serial_number = 0
+            a = results
+            if serial_number == 0:
+                for k in list(a.keys()):
+                    attribute_names.append(k)
+            if action == 'get_an_alert':
+                timestamp = int(a['date'] / 1000)
+            elif action == 'get_a_case':
+                timestamp = int(a['startDate'] / 1000)
+            yield HiveCollectCommand._record(
+                serial_number, timestamp, host, a, attribute_names, encoder)
+            serial_number += 1
+            GeneratingCommand.flush
+
     def generate(self):
 
         # Phase 1: Preparation
@@ -124,11 +158,20 @@ class HiveCollectCommand(GeneratingCommand):
         storage = self.service.storage_passwords
         my_args = prepare_config(self, 'TA_thehive_ce', self.hive_instance, storage)
         my_args['host'] = my_args['thehive_url'].replace('https://', '')
+        api_action = ''
         if self.endpoint == 'case':
-            my_args['thehive_url'] = my_args['thehive_url'] + '/api/alert'
+            my_args['thehive_url'] = my_args['thehive_url'] + '/api/case'
+            api_action = 'list_case'
         else:
             self.endpoint = 'alert'
             my_args['thehive_url'] = my_args['thehive_url'] + '/api/alert'
+            api_action = 'list_alert'
+        if self.objectid is not None:
+            my_args['thehive_url'] = my_args['thehive_url'] + '/' + str(self.objectid)
+            if api_action == 'list_case':
+                api_action = 'get_a_case'
+            elif api_action == 'list_alert':
+                api_action = 'get_an_alert'
         if self.range is not None:
             my_args['range'] = str(self.range)
         else:
@@ -196,20 +239,35 @@ class HiveCollectCommand(GeneratingCommand):
         r.raise_for_status()
         # response is 200 by this point or we would have thrown an exception
         response = r.json()
+        # HiveCollectCommand.displayResponse(response, api_action, my_args['host'])
         encoder = json.JSONEncoder(ensure_ascii=False, separators=(',', ':'))
-        if self.endpoint == "alert":
+        if api_action == 'list_alert' or api_action == 'list_case':
             attribute_names = list()
             serial_number = 0
             for a in response:
                 if serial_number == 0:
                     for k in list(a.keys()):
                         attribute_names.append(k)
-                timestamp = int(a['date'] / 1000)
+                if api_action == 'list_alert':
+                    timestamp = int(a['date'] / 1000)
+                elif api_action == 'list_case':
+                    timestamp = int(a['startDate'] / 1000)
                 yield HiveCollectCommand._record(
-                    serial_number, timestamp, my_args['host'],
-                    a, attribute_names, encoder)
+                    serial_number, timestamp, my_args['host'], a, attribute_names, encoder)
                 serial_number += 1
                 GeneratingCommand.flush
+        elif api_action == 'get_an_alert' or api_action == 'get_a_case':
+            attribute_names = list()
+            a = response
+            for k in list(a.keys()):
+                attribute_names.append(k)
+            if api_action == 'get_an_alert':
+                timestamp = int(a['date'] / 1000)
+            elif api_action == 'get_a_case':
+                timestamp = int(a['startDate'] / 1000)
+            yield HiveCollectCommand._record(
+                0, timestamp, my_args['host'], a, attribute_names, encoder)
+            GeneratingCommand.flush
 
 
 if __name__ == "__main__":

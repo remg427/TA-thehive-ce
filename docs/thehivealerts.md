@@ -1,53 +1,68 @@
 # Send alerts to TheHive
+## introduction
 This TA provides an adaptative response/alert action. It takes the result of a search and creates an alert on [TheHive](https://thehive-project.org)
 The overall process is as follows:
 - search for events & collect observables
 - rename splunk fields to match the field names listed in the lookup table thehive_datatypes.csv. If you haven't created it before the first alert, it will be initialised with the default datatypes (see [example file](TA_thehive_ce/README/thehive_datatypes.csv.sample))
-- set the alert action: it will create an alert into TheHive with those values
-- you can pass additional info, modfify title, description, etc. directly from list of fields
+- set the alert action: it will create an alert into TheHive.
+- you can pass additional info, modfify title, description, etc. directly from the results of your search.
 
-## collect results in Splunk
-### basic search results with a column by artifact type
+## basic example
+### simple search results
 you may build a search returning some values with fields that are mapped (in lookup/thehive_datatypes.csv) to following default datatypes and optionally one field to group rows (Unique ID)
-By default, the lookup thehive_datatypes.csv contains a mapping for thehive datatypes
-
-    autonomous-system
-    domain
-    file
-    filename
-    fqdn
-    hash
-    ip
-    mail
-    mail_subject
-    other
-    regexp
-    registry
-    uri_path
-    url
-    user-agent
-
+By default, the lookup thehive_datatypes.csv contains a mapping for thehive datatypes but you can add your list (see configuration instructions).
 
 For example
 
-    | eval id = md5(some common key in rows belonging to the same alert)
-    | table id, autonomous-system, domain, file, filename, fqdn, hash, ip, mail, mail_subject, other, regexp, registry, uri_path, url, user-agent
+    
+    | makeresults 
+    | eval ip="1.1.1.1", domain="one.one.one.one", comment="simple alert"
+    | fields ip, domain, comment
 
-### manage fields to become observable
-here some precisions
+
+### create the alert action "Alert to create THEHIVE alert(s)"
+Fill in fields. If value is not provided, default will be provided if needed.
+
+* Alert overall description
+    - TheHive instance: one of the instances defined in inputs.conf
+    - Case Template: The case template to use for imported alerts.
+    - Type: The alert type. Defaults to "alert".
+    - Source: The alert source. Defaults to "splunk".
+    - Unique ID: A field name that contains a unique identifier specific to the source event. You may use the field value to group artifacts from several rows under the same alert. The value for the field "unique" have to be the same on those rows.
+    - Timestamp: A field name that contains a valid timestamp (epoch10 or epoch13). if not provided, default to now() 
+    - Title: The title to use for created alerts. You can specify a field name to take the title from the row (see below)
+    - Description: The description to send with the alert. You can specify a field name to take the description from the row (see below)
+    - Tags: Use single comma-separated string without quotes for multiple tags (ex. "badIP,spam").
+    - Severity: Change the severity of the created alert.
+    - TLP: Change the TLP of the created alert. Default is TLP:AMBER
+    - PAP: Change the PAP of the created alert. Default is PAP:AMBER
+
+## manage fields to become observable, enrich the alert with inline fields
+### Here some precisions
 - Values may be empty for some fields; they will be dropped gracefully.
-- Only one combination (dataType, data, message) is kept for the same "Unique ID".
+- Only one combination (dataType, data, message) is kept for the same alert (same "Unique ID").
 - You may add any other columns, they will be passed as simple elements (other)
-- if you can add other observable by listing them in the lookup table  
-1. edit lookup/thehive_datatypes.csv and add 2 lines 
-```
-   src,ip,,,
-   dest,ip,,,
-```
-2. you can now make a search that return fields src and dest; both will be passed to TheHive as observables of type IP (and no longer as "other"
+- You can add other observable by listing them in the lookup table  
 
-### advance search results with additional message
-The search above produce alerts with the observable datatype and values and a static message 'observed'. If you want to provide a custom message with the artifact, you have 2 options
+### use fields to provide values for the alert.
+In the alert form, you can specify a field name instead of a static string for following parameters:
+- unique: if you provide a field name, the result rows will be grouped under each unique value of this field. For example, if 5 rows have the value "alert1" in field **my_unique** and 3 rows have "alert2", then by mentioning in the form for parameter "unique" the field name "my_unique", the script will create 2 alerts in TH, one with observables from the first 5 rows (deduplicated) and a second with observables from the 3 other rows.
+- timestamp: you can provide a field containing a valid timestamp value (epoch10 or epoch13)
+- description: the description of the alert can be taken from the value of a field.
+- title: title of the alert can be taken from the value of a field.
+
+2 additional fields can be used inline:
+- th_msg: if field **th_msg** exists, then the text is added as message for the observables taken from that row.
+- th_inline_tags: if field **th_inline_tags** exists, then the list of tags (comma-separated string) cis added to the observables taken from that row.
+
+A final tips to add specific message to a field is to rename the field to append a text after a ":". For example, to add text "C2 server" to an ip used this syntax:
+
+    | rename ip as "ip:C2 server"
+
+In conclusion, the text message attached to each observable is the concatenation of th_msg text, message in field name and finally " - field: " followed by field name in Splunk search. If in example above th_msg contains "row message", the message attached to the IP will be "row message - C2 server - field: ip"
+ 
+## advanced search results with additional message
+
 1. add to your search a field th_msg. That message will be attached to each artifact
 2. rename the field to include a message section using the syntax "a dataType:some text". the field name will be split on first ":" and the result will be 
 {'dataType': 'a dataType', 'data': 'value', 'message': 'some text'}
@@ -60,18 +75,3 @@ You can try the following dummy search to illustrate this behaviour.
         |eval hash:md5="f3eef6f636a08768cc4a55f81c29f347"
         |table "ip:c2 ip of APTxx" hash:md5 domain
 
-## create the alert action "Alert to create THEHIVE alert(s)"
-Fill in fields. If value is not provided, default will be provided if needed.
-
-* Alert overall description
-    - TheHive instance: one of the instances defined in inputs.conf
-    - Case Template: The case template to use for imported alerts.
-    - Type: The alert type. Defaults to "alert".
-    - Source: The alert source. Defaults to "splunk".
-    - Unique ID: A field name that contains a unique identifier specific to the source event. You may use the field value to group artifacts from several rows under the same alert. The value for the field "unique" have to be the same on those rows.
-    - Title: The title to use for created alerts. You can specify a field name to take the title from the row
-    - Description: The description to send with the alert. You can specify a field name to take the description from the row
-    - Tags: Use single comma-separated string without quotes for multiple tags (ex. "badIP,spam").
-    - Severity: Change the severity of the created alert.
-    - TLP: Change the TLP of the created alert. Default is TLP:AMBER
-    - PAP: Change the PAP of the created alert. Default is PAP:AMBER

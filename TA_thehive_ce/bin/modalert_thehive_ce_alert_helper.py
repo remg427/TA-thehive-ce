@@ -40,6 +40,18 @@ __version__ = "1.1.0"
 __maintainer__ = "Remi Seguy"
 __email__ = "remg427@gmail.com"
 
+# All available data types
+OBSERVABLE_TLP = {
+    "W": 0,
+    "G": 1,
+    "A": 2,
+    "R": 3,
+    "0": "TLP:WHITE",
+    "1": "TLP:GREEN",
+    "2": "TLP:AMBER",
+    "3": "TLP:RED"
+}
+
 
 def prepare_alert(helper, app_name):
     instance = helper.get_param("th_instance")
@@ -94,7 +106,11 @@ def prepare_alert(helper, app_name):
             if tag not in tags:
                 tags.append(tag)
         alert_args['tags'] = tags
-
+    onlyDT = helper.get_param("th_onlyDT")
+    if onlyDT == "Listed":
+        alert_args['onlyDT'] = True
+    else:
+        alert_args['onlyDT'] = False
     # Get numeric values from alert form
     alert_args['severity'] = int(helper.get_param("th_severity"))
     alert_args['tlp'] = int(helper.get_param("th_tlp"))
@@ -114,20 +130,20 @@ def create_alert(helper, config, results, app_name):
     # https://github.com/TheHive-Project/TheHiveDocs/tree/master/api
     dataType = get_datatype_list(helper, config, app_name)
     alertRef = 'SPK' + str(int(time.time()))
-    helper.log_debug("---: {} ".format(alertRef))
+    helper.log_debug("[HA301] alertRef: {}".format(alertRef))
     alerts = dict()
     description = dict()
     timestamp = dict()
     title = dict()
     for row in results:
         helper.log_debug(
-            "read row in results: {} ".format(json.dumps(row))
+            "[HA302] read row in results: {} ".format(json.dumps(row))
         )
         # Splunk makes a bunch of dumb empty multivalue fields
         # we filter those out here
         row = {key: value for key, value in row.items() if not key.startswith("__mv_")}
         helper.log_debug(
-            "clean row : {} ".format(json.dumps(row))
+            "[HA303] clean row : {}".format(json.dumps(row))
         )
 
         # find the field name used for a unique identifier
@@ -138,13 +154,13 @@ def create_alert(helper, config, results, app_name):
             if newSource not in [None, '']:
                 # grabs that field's value and assigns it to our sourceRef
                 sourceRef = newSource
-        helper.log_debug("---: {} ".format(sourceRef))
+        helper.log_debug("[HA304] sourceRef: {} ".format(sourceRef))
         # find the field name used for a valid timestamp
         # and strip it from the row
         timestamp[sourceRef] = config['timestamp']
         if config['timestamp'] in row:
             newTimestamp = row.pop(config['timestamp'])
-            helper.log_debug("newTimestamp: {} ".format(newTimestamp))
+            helper.log_debug("[HA305] new Timestamp from row: {} ".format(newTimestamp))
             epoch10 = re.match("^\d{10}", newTimestamp)
             epoch13 = re.match("^\d{13}$", newTimestamp)
             if epoch13 is not None:
@@ -157,7 +173,7 @@ def create_alert(helper, config, results, app_name):
                 timestamp[sourceRef] = newTS
             else:
                 timestamp[sourceRef] = int(time.time() * 1000)
-        helper.log_debug("---: {} ".format(timestamp[sourceRef]))
+        helper.log_debug("[HA306] alert timestamp: {} ".format(timestamp[sourceRef]))
         # check if description contains a field name instead of a string.
         # if yes, strip it from the row and assign value to description
         description[sourceRef] = config['description']
@@ -165,7 +181,7 @@ def create_alert(helper, config, results, app_name):
             newDescription = str(row.pop(config['description']))  # grabs that field's value
             if newDescription not in [None, '']:
                 description[sourceRef] = newDescription
-        helper.log_debug("---: {} ".format(description[sourceRef]))
+        helper.log_debug("[HA307] alert description: {} ".format(description[sourceRef]))
         # check if title contains a field name instead of a string.
         # if yes, strip it from the row and assign value to title
         title[sourceRef] = config['title']
@@ -173,7 +189,7 @@ def create_alert(helper, config, results, app_name):
             newTitle = str(row.pop(config['title']))  # grabs that field's value
             if newTitle not in [None, '']:
                 title[sourceRef] = newTitle
-        helper.log_debug("---: {} ".format(title[sourceRef]))
+        helper.log_debug("[HA308] alert title: {} ".format(title[sourceRef]))
         # check if the field th_msg exists and strip it from the row.
         # The value will be used as message attached to artifacts
         if 'th_msg' in row:
@@ -181,6 +197,16 @@ def create_alert(helper, config, results, app_name):
             artifactMessage = str(row.pop("th_msg"))
         else:
             artifactMessage = ''
+        helper.log_debug("[HA331] artifact message: {} ".format(artifactMessage))
+
+        # check if the field th_inline_tags exists and strip it from the row.
+        # The comma-separated values will be used as tags attached to artifacts
+        if 'th_inline_tags' in row:
+            # grabs that field's value and assigns it to
+            artifactTags = str(row.pop("th_inline_tags")).split(',')
+        else:
+            artifactTags = list()
+        helper.log_debug("[HA331] artifact tags: {} ".format(artifactTags))
 
         # check if artifacts have been stored for this sourceRef.
         # If yes, retrieve them to add new ones from this row
@@ -193,113 +219,122 @@ def create_alert(helper, config, results, app_name):
 
         # now we take those KV pairs to add to dict
         for key, value in row.items():
+            cTags = artifactTags.copy()
             if value != "":
+                helper.log_debug('[HA320] field to process: {}'.format(key))
+                # get the real key and check if this has to be added to the alert
                 # fields can be enriched with a message part
+                custom_msg = ''
+                cKey = ''
+                cTLP = ''
                 if ':' in key:
+                    helper.log_debug('[HA321] composite fieldvalue: {}'.format(key))
                     dType = key.split(':', 1)
                     key = str(dType[0])
-                    custom_msg = str(dType[1])
-                    if key not in dataType:
-                        cKey = 'other'
+                    # extract TLP at observable level
+                    # it is on letter W G A or R fappended to field name
+                    observable_tlp_check = re.match("^(W|G|A|R)$", str(dType[1]))
+                    if observable_tlp_check is not None:
+                        cTLP = OBSERVABLE_TLP[dType[1]]
+                        cTags.append(OBSERVABLE_TLP[str(cTLP)])
                     else:
-                        cKey = dataType[key]
-                elif key in dataType:
+                        custom_msg = str(dType[1])
+
+                if key in dataType:
+                    helper.log_debug('[HA322] key is in DT list: {} '.format(key))
                     cKey = dataType[key]
-                    custom_msg = ''
-                else:
+                elif config['onlyDT'] is False:
+                    helper.log_debug('[HA323] key is NOT in DT list and onlyDT is False: {} '.format(key))
                     cKey = 'other'
-                    custom_msg = ''
-                cMsg = 'field: ' + str(key)
-                if custom_msg not in [None, '']:
-                    cMsg = custom_msg + ' - ' + cMsg
-                if artifactMessage not in [None, '']:
-                    cMsg = artifactMessage + ' - ' + cMsg
-                if '\n' in value:  # was a multivalue field
-                    helper.log_debug(
-                        'value is not a simple string {} '.format(value)
-                    )
-                    values = value.split('\n')
-                    for val in values:
-                        if val != "":
-                            artifact = dict(dataType=cKey,
-                                            data=str(val),
-                                            message=cMsg
-                                            )
-                            helper.log_debug(
-                                "new artifact is {} ".format(artifact)
-                            )
-                            if artifact not in artifacts:
-                                artifacts.append(artifact)
-                else:
-                    artifact = dict(dataType=cKey,
-                                    data=str(value),
-                                    message=cMsg
-                                    )
-                    helper.log_debug("new artifact is {} ".format(artifact))
-                    if artifact not in artifacts:
-                        artifacts.append(artifact)
+
+                if cKey not in [None, '']:
+                    cMsg = 'field: ' + str(key)
+                    if custom_msg not in [None, '']:
+                        cMsg = custom_msg + ' - ' + cMsg
+                    if artifactMessage not in [None, '']:
+                        cMsg = artifactMessage + ' - ' + cMsg
+                    if '\n' in value:  # was a multivalue field
+                        helper.log_debug('[HA324] value is not a simple string: {} '.format(value))
+                        values = value.split('\n')
+                        for val in values:
+                            if val != "":
+                                artifact = dict(dataType=cKey,
+                                                data=str(val),
+                                                message=cMsg,
+                                                tags=cTags
+                                                )
+                                if cTLP != '':
+                                    artifact['tlp'] = cTLP
+                                helper.log_debug(
+                                    "[HA325] new artifact is {}".format(artifact)
+                                )
+                                if artifact not in artifacts:
+                                    artifacts.append(artifact)
+                    else:
+                        artifact = dict(dataType=cKey,
+                                        data=str(value),
+                                        message=cMsg,
+                                        tags=cTags
+                                        )
+                        if cTLP != '':
+                            artifact['tlp'] = cTLP
+                        helper.log_debug("[HA326] new artifact is {} ".format(artifact))
+                        if artifact not in artifacts:
+                            artifacts.append(artifact)
 
         if artifacts:
             alert['artifacts'] = list(artifacts)
             alerts[sourceRef] = alert
 
     # actually send the request to create the alert; fail gracefully
-    try:
-        # iterate in dict alerts to create alerts
-        for srcRef, artifact_list in alerts.items():
-            helper.log_debug("SourceRef is {} ".format(srcRef))
-            helper.log_debug("Attributes are {}".format(artifact_list))
+    for srcRef, artifact_list in alerts.items():
+        helper.log_debug("[HA312] SourceRef is {} ".format(srcRef))
+        helper.log_debug("[HA313] Attributes are {}".format(artifact_list))
 
-            payload = json.dumps(dict(
-                title=title[srcRef],
-                date=int(timestamp[srcRef]),
-                description=description[srcRef],
-                tags=config['tags'],
-                severity=config['severity'],
-                tlp=config['tlp'],
-                type=config['type'],
-                artifacts=artifact_list['artifacts'],
-                source=config['source'],
-                caseTemplate=config['caseTemplate'],
-                sourceRef=srcRef
-            ))
+        payload = json.dumps(dict(
+            title=title[srcRef],
+            date=int(timestamp[srcRef]),
+            description=description[srcRef],
+            tags=config['tags'],
+            severity=config['severity'],
+            tlp=config['tlp'],
+            type=config['type'],
+            artifacts=artifact_list['artifacts'],
+            source=config['source'],
+            caseTemplate=config['caseTemplate'],
+            sourceRef=srcRef
+        ))
 
-            # set proper headers
-            url = config['thehive_url'] + '/api/alert'
-            auth = config['thehive_key']
-            # client cert file
-            client_cert = config['client_cert_full_path']
+        # set proper headers
+        url = config['thehive_url'] + '/api/alert'
+        auth = config['thehive_key']
+        # client cert file
+        client_cert = config['client_cert_full_path']
 
-            headers = {'Content-type': 'application/json'}
-            headers['Authorization'] = 'Bearer ' + auth
-            headers['Accept'] = 'application/json'
+        headers = {'Content-type': 'application/json'}
+        headers['Authorization'] = 'Bearer ' + auth
+        headers['Accept'] = 'application/json'
 
-            helper.log_debug('DEBUG Calling url="{}"'.format(url))
-            helper.log_debug('DEBUG payload={}'.format(payload))
-            # post alert
+        helper.log_debug('[HA314] DEBUG Calling url="{}"'.format(url))
+        helper.log_debug('[HA315] DEBUG payload={}'.format(payload))
+        # post alert
+        try:
+            # iterate in dict alerts to create alerts
             response = requests.post(url, headers=headers, data=payload,
                                      verify=False, cert=client_cert,
                                      proxies=config['proxies'])
-            if str(response.status_code) == "200" \
-               or str(response.status_code) == "201":
-                helper.log_info(
-                    "INFO theHive server responded with HTTP status {}".format(
-                        response.status_code
-                    )
-                )
-            else:
-                helper.log_error(
-                    "ERROR theHive server responded with status {}".format(
-                        response.status_code
-                    )
-                )
             # check if status is anything other than 200;
             # throw an exception if it is
+
+        # somehow we got a bad response code from thehive
+        except requests.exceptions.HTTPError:
             response.raise_for_status()
 
-    # somehow we got a bad response code from thehive
-    except requests.exceptions.HTTPError as e:
-        helper.log_error("theHive server returned following error: {}".format(e))
+        if str(response.status_code) == "200" \
+           or str(response.status_code) == "201":
+            helper.log_info("[HA316] INFO theHive server responded with HTTP status {}".format(response.status_code))
+        else:
+            helper.log_error("[HA317] ERROR theHive server responded with status {}".format(response.status_code))
 
 
 def process_event(helper, *args, **kwargs):
