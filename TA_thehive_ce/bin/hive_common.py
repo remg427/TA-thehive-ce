@@ -42,9 +42,9 @@ def create_datatype_lookup(helper, app_name):
     if not os.path.exists(th_dt_filename):
         # file th_dt_filename.csv doesn't exist. Create the file
         observables = list()
-        observables.append(['field_name', 'datatype', 'regex', 'description'])
+        observables.append(['field_name', 'field_type', 'datatype', 'regex', 'description'])
         for dt in dataTypeList:
-            observables.append([dt, dt, '', ''])
+            observables.append([dt, 'artifact', dt, '', ''])
         try:
             if not os.path.exists(directory):
                 os.makedirs(directory)
@@ -98,8 +98,8 @@ def create_instance_lookup(helper, app_name):
             )
 
 
-def get_datatype_list(helper, config, app_name):
-    dt_list = dict()
+def get_datatype_dict(helper, config, app_name):
+    dataType_dict = dict()
     _SPLUNK_PATH = os.environ['SPLUNK_HOME']
     directory = os.path.join(
         _SPLUNK_PATH, 'etc', 'apps', app_name, 'lookups'
@@ -124,21 +124,61 @@ def get_datatype_list(helper, config, app_name):
             try:
                 csv_reader = csv.DictReader(fh)
                 for row in csv_reader:
-                    if 'field_name' in row:
-                        dt_list[row['field_name']] = row['datatype']
-                helper.log_info("[HC304] dt_list built from thehive_datatypes.csv")
+                    if 'field_name' in row and 'field_type' in row:
+                        if row['field_type'] == 'artifact':
+                            dataType_dict[row['field_name']] = row['datatype']
+                helper.log_info("[HC304] dataType_dict built from thehive_datatypes.csv")
             except IOError:  # file thehive_datatypes.csv not readable
-                helper.log_error('[HC305] file {} absent or not readable'.format(
+                helper.log_error('[HC305] file {} empty, malformed or not readable'.format(
                     th_dt_filename
                 ))
     else:
         create_datatype_lookup(helper, app_name)
-    if not dt_list:
-        dt_list = dict()
+    if not dataType_dict:
+        dataType_dict = dict()
         for dt in dataTypeList:
-            dt_list[dt] = dt
-        helper.log_info("[HC306] dt_list built from inline table")
-    return dt_list
+            dataType_dict[dt] = dt
+        helper.log_info("[HC306] dataType_dict built from inline table")
+    return dataType_dict
+
+
+def get_customField_dict(helper, config, app_name):
+    customField_dict = dict()
+    _SPLUNK_PATH = os.environ['SPLUNK_HOME']
+    directory = os.path.join(
+        _SPLUNK_PATH, 'etc', 'apps', app_name, 'lookups'
+    )
+    helper.log_debug("[HC601]---: {} ".format(directory))
+    th_dt_filename = os.path.join(directory, 'thehive_datatypes.csv')
+    if os.path.exists(th_dt_filename):
+        try:
+            # open the file with gzip lib, start making alerts
+            # can with statements fail gracefully??
+            fh = open(th_dt_filename, "rt")
+            helper.log_debug(
+                "[HC602] file {} is open with first try".format(th_dt_filename)
+            )
+        except ValueError:
+            # Workaround for Python 2.7 under Windows
+            fh = gzip.open(th_dt_filename, "r")
+            helper.log_debug(
+                "[HC603] file {} is open with alternate".format(th_dt_filename)
+            )
+        if fh is not None:
+            try:
+                csv_reader = csv.DictReader(fh)
+                for row in csv_reader:
+                    if 'field_name' in row and 'field_type' in row:
+                        if row['field_type'] == 'customField':
+                            customField_dict[row['field_name']] = row['datatype']
+                helper.log_info("[HC604] customField_dict built from thehive_datatypes.csv")
+            except IOError:  # file thehive_datatypes.csv not readable
+                helper.log_error('[HC605] file {} absent or not readable'.format(
+                    th_dt_filename
+                ))
+    else:
+        create_datatype_lookup(helper, app_name)
+    return customField_dict
 
 
 def logging_level(helper, app_name):

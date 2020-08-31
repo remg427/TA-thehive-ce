@@ -31,7 +31,13 @@ Thehive expects observables passed in the alert to have specific [data types](TA
 ### additional fields and custom fields
 8. In addition, you can edit the CSV file **lookups/thehive_datatypes.csv** to add as many rows ass you need
 	- then you can defined additional field (from datamodel) mapping to datatype e.g. on Splunk field _src_ (from datamodel Web) can be mapped to datatype _ip_, _dest_ to _domain_ etc.
-	- likewise, you can add your custom fields with corresponding dataType.
+	- edit lookup/thehive_datatypes.csv and add 2 lines 
+```
+   src,ip,,,
+   dest,ip,,,
+```
+    - you can now make a search that return fields src and dest; both will be passed to TheHive as observables of type IP (and no longer as "other"
+9. likewise, you can add your custom fields with corresponding dataType.
 
 # Use Cases
 

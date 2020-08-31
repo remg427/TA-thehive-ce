@@ -26,7 +26,7 @@
 # https://docs.splunk.com/Documentation/Splunk/8.0.3/AdvancedDev/ModAlertsAdvancedExample
 import csv
 import gzip
-from hive_common import get_datatype_list, prepare_config
+from hive_common import get_customField_dict, get_datatype_dict, prepare_config
 import json
 import os
 import re
@@ -128,9 +128,10 @@ def create_alert(helper, config, results, app_name):
     # and then adding the attributes under same alert key
     # this builds the dict alerts
     # https://github.com/TheHive-Project/TheHiveDocs/tree/master/api
-    dataType = get_datatype_list(helper, config, app_name)
-    alertRef = 'SPK' + str(int(time.time()))
-    helper.log_debug("[HA301] alertRef: {}".format(alertRef))
+    data_type = get_datatype_dict(helper, config, app_name)
+    custom_field_type = get_customField_dict(helper, config, app_name)
+    alert_refererence = 'SPK' + str(int(time.time()))
+    helper.log_debug("[HA301] alert_refererence: {}".format(alert_refererence))
     alerts = dict()
     description = dict()
     timestamp = dict()
@@ -148,7 +149,7 @@ def create_alert(helper, config, results, app_name):
 
         # find the field name used for a unique identifier
         # and strip it from the row
-        sourceRef = alertRef
+        sourceRef = alert_refererence
         if config['unique'] in row:
             newSource = str(row.pop(config['unique']))
             if newSource not in [None, '']:
@@ -213,10 +214,11 @@ def create_alert(helper, config, results, app_name):
         if sourceRef in alerts:
             alert = alerts[sourceRef]
             artifacts = list(alert["artifacts"])
+            customFields = dict(alert['customFields'])
         else:
             alert = dict()
             artifacts = list()
-
+            customFields = dict()
         # now we take those KV pairs to add to dict
         for key, value in row.items():
             cTags = artifactTags.copy()
@@ -225,7 +227,7 @@ def create_alert(helper, config, results, app_name):
                 # get the real key and check if this has to be added to the alert
                 # fields can be enriched with a message part
                 custom_msg = ''
-                cKey = ''
+                artifact_key = ''
                 cTLP = ''
                 if ':' in key:
                     helper.log_debug('[HA321] composite fieldvalue: {}'.format(key))
@@ -240,14 +242,20 @@ def create_alert(helper, config, results, app_name):
                     else:
                         custom_msg = str(dType[1])
 
-                if key in dataType:
-                    helper.log_debug('[HA322] key is in DT list: {} '.format(key))
-                    cKey = dataType[key]
+                if key in data_type:
+                    helper.log_debug('[HA322] key is an artifact: {} '.format(key))
+                    artifact_key = data_type[key]
+                elif key in custom_field_type:
+                    helper.log_debug('[HA327] key is a custom field: {} '.format(key))
+                    custom_field = dict()
+                    custom_field['order'] = len(customFields)
+                    custom_field[custom_field_type[key]] = value
+                    customFields[key] = custom_field
                 elif config['onlyDT'] is False:
-                    helper.log_debug('[HA323] key is NOT in DT list and onlyDT is False: {} '.format(key))
-                    cKey = 'other'
+                    helper.log_debug('[HA323] key is added as other artifact (onlyDT is False): {} '.format(key))
+                    artifact_key = 'other'
 
-                if cKey not in [None, '']:
+                if artifact_key not in [None, '']:
                     cMsg = 'field: ' + str(key)
                     if custom_msg not in [None, '']:
                         cMsg = custom_msg + ' - ' + cMsg
@@ -258,7 +266,7 @@ def create_alert(helper, config, results, app_name):
                         values = value.split('\n')
                         for val in values:
                             if val != "":
-                                artifact = dict(dataType=cKey,
+                                artifact = dict(dataType=artifact_key,
                                                 data=str(val),
                                                 message=cMsg,
                                                 tags=cTags
@@ -271,7 +279,7 @@ def create_alert(helper, config, results, app_name):
                                 if artifact not in artifacts:
                                     artifacts.append(artifact)
                     else:
-                        artifact = dict(dataType=cKey,
+                        artifact = dict(dataType=artifact_key,
                                         data=str(value),
                                         message=cMsg,
                                         tags=cTags
@@ -284,12 +292,14 @@ def create_alert(helper, config, results, app_name):
 
         if artifacts:
             alert['artifacts'] = list(artifacts)
+            alert['customFields'] = customFields
             alerts[sourceRef] = alert
 
     # actually send the request to create the alert; fail gracefully
-    for srcRef, artifact_list in alerts.items():
+    for srcRef in alerts.keys():
         helper.log_debug("[HA312] SourceRef is {} ".format(srcRef))
-        helper.log_debug("[HA313] Attributes are {}".format(artifact_list))
+        helper.log_debug("[HA313] Attributes are {}".format(alerts[srcRef]['artifacts']))
+        helper.log_debug("[HA318] custom fields are {}".format(alerts[srcRef]['customFields']))
 
         payload = json.dumps(dict(
             title=title[srcRef],
@@ -299,7 +309,8 @@ def create_alert(helper, config, results, app_name):
             severity=config['severity'],
             tlp=config['tlp'],
             type=config['type'],
-            artifacts=artifact_list['artifacts'],
+            artifacts=alerts[srcRef]['artifacts'],
+            customFields=alerts[srcRef]['customFields'],
             source=config['source'],
             caseTemplate=config['caseTemplate'],
             sourceRef=srcRef
