@@ -162,7 +162,7 @@ def create_alert(helper, config, results, app_name):
         if config['timestamp'] in row:
             newTimestamp = row.pop(config['timestamp'])
             helper.log_debug("[HA305] new Timestamp from row: {} ".format(newTimestamp))
-            epoch10 = re.match("^\d{10}", newTimestamp)
+            epoch10 = re.match("^\d{10}$", newTimestamp)
             epoch13 = re.match("^\d{13}$", newTimestamp)
             if epoch13 is not None:
                 newTS = int(newTimestamp)
@@ -247,10 +247,60 @@ def create_alert(helper, config, results, app_name):
                     artifact_key = data_type[key]
                 elif key in custom_field_type:
                     helper.log_debug('[HA327] key is a custom field: {} '.format(key))
+                    # expected types are `string`, `boolean`, `number` (only TH3), `date`, `integer` (only TH4), `float` (only TH4)
+                    custom_field_check = False
                     custom_field = dict()
                     custom_field['order'] = len(customFields)
-                    custom_field[custom_field_type[key]] = value
-                    customFields[key] = custom_field
+                    custom_type = custom_field_type[key]
+                    if custom_type == 'string':
+                        custom_field_check = True
+                        custom_field[custom_type] = str(value)
+                    elif custom_type == 'boolean':
+                        is_True = re.match("^(1|y|Y|t|T|true|True)$", value)
+                        is_False = re.match("^(0|n|N|f|F|false|False)$", value)
+                        if is_True is not None:
+                            custom_field_check = True
+                            custom_field[custom_type] = True
+                        elif is_False is not None:
+                            custom_field_check = True
+                            custom_field[custom_type] = False
+                    elif custom_type == 'number':  # for TheHive3 only
+                        is_integer = re.match("^\d+$", value)
+                        if is_integer is not None:
+                            custom_field_check = True
+                            custom_field[custom_type] = int(value)
+                        else:
+                            try:
+                                number = float(value)
+                                custom_field_check = True
+                                custom_field[custom_type] = number
+                            except ValueError:
+                                pass
+                    elif custom_type == 'integer':  # for TheHive4 only
+                        try:
+                            number = int(value)
+                            custom_field_check = True
+                            custom_field[custom_type] = number
+                        except ValueError:
+                            pass
+                    elif custom_type == 'float':  # for TheHive4 only
+                        try:
+                            number = float(value)
+                            custom_field_check = True
+                            custom_field[custom_type] = number
+                        except ValueError:
+                            pass
+                    elif custom_type == 'date':
+                        epoch10 = re.match("^\d{10}$", value)
+                        epoch13 = re.match("^\d{13}$", value)
+                        if epoch13 is not None:
+                            custom_field_check = True
+                            custom_field[custom_type] = int(value)
+                        elif epoch10 is not None:
+                            custom_field_check = True
+                            custom_field[custom_type] = int(value) * 1000
+                    if custom_field_check is True:
+                        customFields[key] = custom_field
                 elif config['onlyDT'] is False:
                     helper.log_debug('[HA323] key is added as other artifact (onlyDT is False): {} '.format(key))
                     artifact_key = 'other'

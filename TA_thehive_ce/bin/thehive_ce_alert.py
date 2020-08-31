@@ -66,11 +66,12 @@ that a compatible version of Splunk_SA_CIM is installed.".format(ae.message)
             return 4
         except Exception as e:
             msg = "Unexpected error: {}."
-            if e.message:
-                self.log_error(msg.format(e.message))
-            else:
-                import traceback
-                self.log_error(msg.format(traceback.format_exc()))
+            # if e.message:
+            #     self.log_error(msg.format(e.message))
+            self.log_error(msg.format(e))
+            # else:
+            #     import traceback
+            #     self.log_error(msg.format(traceback.format_exc()))
             return 5
         return status
 
