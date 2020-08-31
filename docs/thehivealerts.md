@@ -5,18 +5,17 @@ The overall process is as follows:
 - search for events & collect observables
 - rename splunk fields to match the field names listed in the lookup table thehive_datatypes.csv. If you haven't created it before the first alert, it will be initialised with the default datatypes (see [example file](TA_thehive_ce/README/thehive_datatypes.csv.sample))
 - set the alert action: it will create an alert into TheHive.
-- you can pass additional info, modfify title, description, etc. directly from the results of your search.
+- you can pass additional info, TLP per observables, custom fields, modify title, description, etc. directly from the results of your search.
 
 ## basic example
 ### simple search results
-you may build a search returning some values with fields that are mapped (in lookup/thehive_datatypes.csv) to following default datatypes and optionally one field to group rows (Unique ID)
+You may build a search returning some values with fields that are mapped (in lookup/thehive_datatypes.csv) to following default datatypes and optionally one field to group rows (Unique ID).  
 By default, the lookup thehive_datatypes.csv contains a mapping for thehive datatypes but you can add your list (see configuration instructions).
 
 For example
-
     
     | makeresults 
-    | eval ip="1.1.1.1", domain="one.one.one.one", comment="simple alert"
+    | eval ip="1.1.1.1", domain="one.one.one.one", comment="dummy alert"
     | fields ip, domain, comment
 
 
@@ -33,6 +32,7 @@ Fill in fields. If value is not provided, default will be provided if needed.
     - Title: The title to use for created alerts. You can specify a field name to take the title from the row (see below)
     - Description: The description to send with the alert. You can specify a field name to take the description from the row (see below)
     - Tags: Use single comma-separated string without quotes for multiple tags (ex. "badIP,spam").
+    - Non-listed fields: you can choose to ignore fields with are not listed in lookup or include them with type other.
     - Severity: Change the severity of the created alert.
     - TLP: Change the TLP of the created alert. Default is TLP:AMBER
     - PAP: Change the PAP of the created alert. Default is PAP:AMBER
@@ -41,8 +41,9 @@ Fill in fields. If value is not provided, default will be provided if needed.
 ### Here some precisions
 - Values may be empty for some fields; they will be dropped gracefully.
 - Only one combination (dataType, data, message) is kept for the same alert (same "Unique ID").
-- You may add any other columns, they will be passed as simple elements (other)
-- You can add other observable by listing them in the lookup table  
+- You may add any other columns, they will be passed as simple elements (other) if you select option "Add all fields to the alert (default dataType is other)"
+- You can add other observables by listing them in the lookup table first and having corresponding field name(s) in your search.
+- You can add custom fields (internal reference) by listing them in the lookup table first and having corresponding field name(s) in your search.
 
 ### use fields to provide values for the alert.
 In the alert form, you can specify a field name instead of a static string for following parameters:
@@ -51,11 +52,21 @@ In the alert form, you can specify a field name instead of a static string for f
 - description: the description of the alert can be taken from the value of a field.
 - title: title of the alert can be taken from the value of a field.
 
+### custom TLP per observable
+If you want to set az different TLP level than the one set for the alert, append to the field name
+    - :R for TLP:RED
+    - :A for TLP:AMBER
+    - :G for TLP:GREEN
+    - :W for TLP:WHITE
+    
+```
+For example if you rename src field as "src:R", then this observable will be set with TLP:RED whatever is the TLP level for the alert.
+```
+### inline message(s) and tag(s)
 2 additional fields can be used inline:
+- th_inline_tags: if field **th_inline_tags** exists, then the list of tags (comma-separated string) cis added to the observables taken from that row.  
 - th_msg: if field **th_msg** exists, then the text is added as message for the observables taken from that row.
-- th_inline_tags: if field **th_inline_tags** exists, then the list of tags (comma-separated string) cis added to the observables taken from that row.
-
-A final tips to add specific message to a field is to rename the field to append a text after a ":". For example, to add text "C2 server" to an ip used this syntax:
+- A final tips to add specific message to a field is to rename the field to append a text after a ":". For example, to add text "C2 server" to an ip used this syntax (this option is not possible if you use custom TLP level).
 
     | rename ip as "ip:C2 server"
 
@@ -72,6 +83,8 @@ You can try the following dummy search to illustrate this behaviour.
         index=_* | streamstats count as rc |where rc < 4
         |eval "ip:c2 ip of APTxx"="1.1.1."+rc 
         |eval domain="www.malicious.com" 
+        |eval src=10.11.12.13 |rename src as "src:R"
+        |eval playbook = "playbook title"
         |eval hash:md5="f3eef6f636a08768cc4a55f81c29f347"
-        |table "ip:c2 ip of APTxx" hash:md5 domain
+        |table "ip:c2 ip of APTxx" hash:md5 domain "src:R" playbook
 
