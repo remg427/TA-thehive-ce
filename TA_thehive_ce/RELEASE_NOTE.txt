@@ -2,6 +2,12 @@ RELEASE NOTE
 ----------------------------------------------------------------------------
 
 for latest release check see more on https://github.com/remg427/TA-thehive-ce
+Version 1.1.0 - August 31, 2020
+- custom command hivecollect
+- th_inline_tags: set tags per observable (on the same row)
+- only data type option: to limit alert observables to the list of fields in thehive_datatypes.csv
+- implement TLP per observable
+- custom fields for alerts (needs to uppgrade lookup thehive_datatypes.csv)
 
 Version 1.0.3 - May 13, 2020
 - fix appinspect
