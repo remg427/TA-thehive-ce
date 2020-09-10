@@ -2,6 +2,9 @@ RELEASE NOTE
 ----------------------------------------------------------------------------
 
 for latest release check see more on https://github.com/remg427/TA-thehive-ce
+Version 1.1.1 - September 10, 2020
+- fix issue #8 with list artifactTags in py2
+
 Version 1.1.0 - August 31, 2020
 - custom command hivecollect
 - th_inline_tags: set tags per observable (on the same row)
