@@ -202,11 +202,15 @@ def create_alert(helper, config, results, app_name):
 
         # check if the field th_inline_tags exists and strip it from the row.
         # The comma-separated values will be used as tags attached to artifacts
+        artifactTags = []
         if 'th_inline_tags' in row:
             # grabs that field's value and assigns it to
-            artifactTags = str(row.pop("th_inline_tags")).split(',')
-        else:
-            artifactTags = list()
+            inline_tags = str(row.pop("th_inline_tags"))
+            if "," in inline_tags:
+                artifactTags = inline_tags.split(',')
+            else:
+                artifactTags = [inline_tags]
+
         helper.log_debug("[HA331] artifact tags: {} ".format(artifactTags))
 
         # check if artifacts have been stored for this sourceRef.
@@ -217,11 +221,11 @@ def create_alert(helper, config, results, app_name):
             customFields = dict(alert['customFields'])
         else:
             alert = dict()
-            artifacts = list()
+            artifacts = []
             customFields = dict()
         # now we take those KV pairs to add to dict
         for key, value in row.items():
-            cTags = artifactTags.copy()
+            cTags = artifactTags[:]
             if value != "":
                 helper.log_debug('[HA320] field to process: {}'.format(key))
                 # get the real key and check if this has to be added to the alert
