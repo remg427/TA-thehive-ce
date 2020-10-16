@@ -1,5 +1,16 @@
 <nav search_view="search" color="#ffde63">
-<view name="configuration"/>
-<view name="alerts" default="true"/>
-<view name="search" label="Search"/>
+	<view name="overview" label="Overview" default="true"/>
+	<collection label="TheHive CE alerts">
+		<view name="thehive_ce_alert_demonstrator" label="Creete TheHive CE Alert"/>
+		<view name="thehive_ce_alert_logs" label="TheHive CE Alert logs"/>
+		<view name="alerts" />
+	</collection>
+	<collection label="Search">
+		<view name="search" />
+		<view name="reports" />
+		<view name="dashboards" />
+		<view name="alerts" />
+	</collection>
+	<view name="configuration" />
+	<a href="search">Run a search</a>
 </nav>

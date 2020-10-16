@@ -1,0 +1,34 @@
+<form>
+  <label>TheHive CE alert logs</label>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="GlobalTimePicker" searchWhenChanged="true">
+      <label>Time range</label>
+      <default>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Logs related to alert creation in TheHive</title>
+      <table>
+        <title>(index=_* OR index=cim_*) sourcetype="ta:thehive:ce:log"</title>
+        <search>
+          <query>(index=_* OR index=cim_*) sourcetype="ta:thehive:ce:log"</query>
+          <earliest>$GlobalTimePicker.earliest$</earliest>
+          <latest>$GlobalTimePicker.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

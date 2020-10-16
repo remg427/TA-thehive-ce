@@ -61,8 +61,6 @@ def create_datatype_lookup(helper, app_name):
 def create_instance_lookup(helper, app_name):
     # if the lookup available on github has not been created
     # generate it on first alert and return a message to configure it
-    # https://github.com/remg427/TA-thehive-ce
-    # https://github.com/remg427/TA-thehive-ce/blob/master/TA_thehive_ce/README/thehive_instance_list.csv.sample
     _SPLUNK_PATH = os.environ['SPLUNK_HOME']
     directory = os.path.join(
         _SPLUNK_PATH, 'etc', 'apps', app_name, 'lookups')
@@ -244,8 +242,7 @@ def prepare_config(helper, app_name, th_instance, storage_passwords):
         helper.log_error(
             """[HC406] lookups/thehive_instance_list.csv was not found.
 A lookup has been created following the template available on github.
-Please check install instructions https://github.com/remg427/TA_thehive_ce.
-Edit the lookup with your parameters."""
+Please check install instructions and edit the lookup with your parameters."""
         )
         return None
 
@@ -274,27 +271,17 @@ Edit the lookup with your parameters."""
                     found_instance = True
                     # get URL from lookup entry
                     th_url = str(row['thehive_url']).rstrip('/')
-                    # validate that the url starts with 'https://'
-                    # requirement for Cloud Edition
-                    url_match = re.match(
-                        "^https:\/\/[0-9a-zA-Z\-\.]+(?:\:\d+)?$", th_url
-                    )
-                    if url_match is None:
-                        helper.log_error(
-                            "[HC410] FATAL thehive_url does not start with \
-'https://'; Please edit thehive_instance_list.csv to fix this."
-                        )
-                        return None
+                    # For Splunk Cloud vetting, the URL must start with https://
+                    if not th_url.startswith("https://"):
+                        th_url = 'https://' + th_url
+                        helper.log_info("[HC410] thehive_url does not start with 'https://'; Please edit thehive_instance_list.csv to fix this.")
                     config_args['thehive_url'] = th_url
                     api_key_name = row['thehive_api_key_name']
                     key_match = re.match(
                         "^thehive_api_key(1|2|3)$", api_key_name
                     )
                     if key_match is None:
-                        helper.log_error(
-                            "[HC411] FATAL api_key_name must be \
-'thehive_api_key1' or 2 or 3"
-                        )
+                        helper.log_error("[HC411] FATAL api_key_name must be 'thehive_api_key1' or 2 or 3")
                         return None
                     verifycert = str(row['thehive_verifycert'])
                     if verifycert == 'True' or verifycert == 'true':
@@ -319,8 +306,7 @@ Edit the lookup with your parameters."""
                         use_proxy = False
 
     if found_instance is False:
-        helper.log_error("[HC412] lookups/thehive_instance_list.csv does not contain \
-configuration for instance {} ".format(th_instance))
+        helper.log_error("[HC412] lookups/thehive_instance_list.csv does not contain configuration for instance {} ".format(th_instance))
         return None
 
     # get proxy parameters if any
@@ -342,18 +328,9 @@ configuration for instance {} ".format(th_instance))
             }
 
     # log config taken from lookup table
-    helper.log_info("---------------------------------------------------")
-    helper.log_info("[HC413] config_args: {}".format(json.dumps(config_args)))
-    helper.log_info("---------------------------------------------------")
+    helper.log_debug("[HC413] config_args: {}".format(json.dumps(config_args)))
 
     # get clear version of thehive_key
-    # get session key
-    # try:
-    #     sessionKey = helper.settings['session_key']
-    #     splunkService = client.connect(token=sessionKey)
-    #     storage_passwords = splunkService.storage_passwords
-    # except ValueError:
-    #     storage_passwords = helper.service.storage_passwords
     config_args['thehive_key'] = None
     # from the thehive_api_key defined in the lookup table
     # securely retrive the API key value from storage_password

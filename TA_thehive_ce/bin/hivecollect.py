@@ -148,15 +148,15 @@ class HiveCollectCommand(GeneratingCommand):
             GeneratingCommand.flush
 
     def generate(self):
-
         # Phase 1: Preparation
         logging.root
         loglevel = logging_level(self, 'TA_thehive_ce')
         logging.root.setLevel(loglevel)
-        self.log_error('logging level is set to {}'.format(loglevel))
-        self.log_error('PYTHON VERSION: {}'.format(sys.version))
+        self.log_error('[CO-101] logging level is set to {}'.format(loglevel))
         storage = self.service.storage_passwords
         my_args = prepare_config(self, 'TA_thehive_ce', self.hive_instance, storage)
+        if my_args is None:
+            raise Exception("Sorry, no configuration for hive_instance={}".format(self.hive_instance))
         my_args['host'] = my_args['thehive_url'].replace('https://', '')
         api_action = ''
         if self.endpoint == 'case':
@@ -176,32 +176,6 @@ class HiveCollectCommand(GeneratingCommand):
             my_args['range'] = str(self.range)
         else:
             my_args['range'] = "0-10"
-        # check that ONE of mandatory fields is present
-
-        # body_dict = dict()
-        # # Only ONE combination was provided
-        # if self.json_request is not None:
-        #     body_dict = json.loads(self.json_request)
-        #     self.log_info('Option "json_request" set')
-        # elif self.alertid:
-        #     if "," in self.alertid:
-        #         alert_criteria = {}
-        #         alert_list = self.alertid.split(",")
-        #         alert_criteria['OR'] = alert_list
-        #         body_dict['alertid'] = alert_criteria
-        #     else:
-        #         body_dict['alertid'] = self.alertid
-        #     self.log_info('Option "alertid" set with %s', json.dumps(body_dict['alertid']))
-        # else:
-        #     body_dict['date'] = self.date.split()
-        #     self.log_info('Option "date" set with %s', json.dumps(body_dict['date']))
-
-        # # Force some values on JSON request
-        # body_dict['returnFormat'] = 'json'
-        # body_dict['withAttachments'] = False
-        # body_dict['deleted'] = False
-        # body_dict['includeEventUuid'] = True
-        # # set proper headers
         headers = {
             "Authorization": "Bearer {}".format(my_args['thehive_key'])
         }

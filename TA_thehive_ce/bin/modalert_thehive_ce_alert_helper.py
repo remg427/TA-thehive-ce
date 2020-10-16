@@ -8,27 +8,8 @@
 # Copyright: LGPLv3 (https://www.gnu.org/licenses/lgpl-3.0.txt)
 # Feel free to use the code, but please share the changes you've made
 
-#    autonomous-system
-#    domain
-#    file
-#    filename
-#    fqdn
-#    hash
-#    ip
-#    mail
-#    mail_subject
-#    other
-#    regexp
-#    registry
-#    uri_path
-#    url
-#    user-agent
-# https://docs.splunk.com/Documentation/Splunk/8.0.3/AdvancedDev/ModAlertsAdvancedExample
-import csv
-import gzip
 from hive_common import get_customField_dict, get_datatype_dict, prepare_config
 import json
-import os
 import re
 import requests
 import time
@@ -36,7 +17,7 @@ import splunklib.client as client
 
 __author__ = "Remi Seguy"
 __license__ = "LGPLv3"
-__version__ = "1.1.0"
+__version__ = "1.1.2"
 __maintainer__ = "Remi Seguy"
 __email__ = "remg427@gmail.com"
 
@@ -123,11 +104,10 @@ def prepare_alert(helper, app_name):
     return config_args
 
 
-def create_alert(helper, config, results, app_name):
+def create_alert(helper, config, app_name):
     # iterate through each row, cleaning multivalue fields
     # and then adding the attributes under same alert key
     # this builds the dict alerts
-    # https://github.com/TheHive-Project/TheHiveDocs/tree/master/api
     data_type = get_datatype_dict(helper, config, app_name)
     custom_field_type = get_customField_dict(helper, config, app_name)
     alert_refererence = 'SPK' + str(int(time.time()))
@@ -136,7 +116,8 @@ def create_alert(helper, config, results, app_name):
     description = dict()
     timestamp = dict()
     title = dict()
-    for row in results:
+    events = helper.get_events()
+    for row in events:
         helper.log_debug(
             "[HA302] read row in results: {} ".format(json.dumps(row))
         )
@@ -501,56 +482,15 @@ def process_event(helper, *args, **kwargs):
     [sample_code_macro:end]
     """
     helper.set_log_level(helper.log_level)
-    helper.log_info("Alert action thehive_ce_alert started.")
+    helper.log_info("[AL101] Alert action thehive_ce_alert started.")
 
     # TODO: Implement your alert action logic here
-    helper.log_info("prepare config dict.")
     th_app_name = "TA_thehive_ce"
-    helper.log_info("app {}.".format(th_app_name))
-    instance = helper.get_param("th_instance")
-    helper.log_info("instance {}.".format(instance))
     th_config = prepare_alert(helper, th_app_name)
     if th_config is None:
-        helper.log_error("FATAL config dict not initialised")
+        helper.log_error("[AL102] FATAL config dict not initialised")
         return 1
     else:
-        helper.log_info("config dict is ready to use")
-        filename = th_config['filename']
-        helper.log_info("file is {}".format(filename))
-        # test if the results file exists
-        # this should basically never fail unless
-        # we are parsing configuration incorrectly
-        # example path this variable should hold something like
-        # '/opt/splunk/var/run/splunk/12938718293123.121/results.csv.gz'
-        if os.path.exists(filename):
-            # file exists - try to open it; fail gracefully
-            try:
-                # open the file with gzip lib, start making alerts
-                # can with statements fail gracefully??
-                fh = gzip.open(filename, "rt")
-                helper.log_info("file {} is open with first try".format(filename))
-            except ValueError:
-                # Workaround for Python 2.7 under Windows
-                fh = gzip.open(filename, "r")
-                helper.log_info("file {} is open with first alternate".format(filename))
-
-            if fh is not None:
-                # DictReader lets us grab the first row as a header row and
-                # other lines will read as a dict mapping the header
-                # to the value instead of reading the first line with a
-                # regular csv reader and zipping the dict manually later at
-                # least, in theory
-                event_reader = csv.DictReader(fh)
-                helper.log_debug("event_reader is {}".format(event_reader))
-                # make the alert with predefined function; fail gracefully
-                create_alert(helper, th_config, event_reader, th_app_name)
-            # something went wrong with opening the results file
-            else:
-                helper.log_error("FATAL Results file exists but \
-could not be opened or read")
-                return 2
-        else:
-            helper.log_error("FATAL Results file not found")
-            return 3
-
+        helper.log_debug("[AL103] config dict is ready to use")
+        create_alert(helper, th_config, th_app_name)
     return 0

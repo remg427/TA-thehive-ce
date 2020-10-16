@@ -1,0 +1,160 @@
+<form>
+  <label>TheHive CE alert</label>
+  <fieldset submitButton="true">
+    <input type="dropdown" token="hive_instance" searchWhenChanged="False">
+      <label>hive_instance</label>
+      <fieldForLabel>thehive_instance</fieldForLabel>
+      <fieldForValue>thehive_instance</fieldForValue>
+      <search>
+        <query>| inputlookup thehive_instance_list.csv
+| fields thehive_instance</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="dropdown" token="th_severity" searchWhenChanged="False">
+      <label>th_severity</label>
+      <choice value="1">Low</choice>
+      <choice value="2">Medium</choice>
+      <choice value="3">High</choice>
+    </input>
+    <input type="dropdown" token="th_tlp" searchWhenChanged="false">
+      <label>TLP (th_tlp)</label>
+      <choice value="3">TLP:RED</choice>
+      <choice value="2">TLP:AMBER</choice>
+      <choice value="1">TLP:GREEN</choice>
+      <choice value="0">TLP:WHITE</choice>
+    </input>
+    <input type="dropdown" token="th_pap" searchWhenChanged="False">
+      <label>PAP (th_pap)</label>
+      <choice value="3">PAP:RED</choice>
+      <choice value="2">PAP:AMBER</choice>
+      <choice value="1">PAP:GREEN</choice>
+      <choice value="0">PAP:WHITE</choice>
+    </input>
+    <input type="text" token="th_case_template" searchWhenChanged="False">
+      <label>th_case_template</label>
+      <initialValue></initialValue>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_template"></set>
+        </condition>
+        <condition>
+          <set token="hive_template">param.th_case_template="$th_case_template$"</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="th_description" searchWhenChanged="False">
+      <label>th_description</label>
+      <initialValue></initialValue>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_description"></set>
+        </condition>
+        <condition>
+          <set token="hive_description">param.th_description="$th_description$"</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="th_onlyDTp" searchWhenChanged="false">
+      <label>th_onlyDT</label>
+      <choice value="Listed">Use only fields in thehive_datatypes.csv</choice>
+      <choice value="All">Add all fields to the alert (default dataType is other)</choice>
+      <default>All</default>
+      <initialValue>All</initialValue>
+    </input>
+    <input type="text" token="th_source" searchWhenChanged="False">
+      <label>th_source</label>
+      <initialValue></initialValue>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_source"></set>
+        </condition>
+        <condition>
+          <set token="hive_source">param.th_source="$th_source$"</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="th_title" searchWhenChanged="False">
+      <label>th_title</label>
+      <initialValue></initialValue>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_title"></set>
+        </condition>
+        <condition>
+          <set token="hive_title">param.th_title="$th_title$"</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="th_tags" searchWhenChanged="False">
+      <label>th_tags</label>
+      <initialValue></initialValue>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_tags"></set>
+        </condition>
+        <condition>
+          <set token="hive_tags">param.th_tags="$th_tags$"</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="th_type" searchWhenChanged="False">
+      <label>th_type</label>
+      <initialValue></initialValue>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_type"></set>
+        </condition>
+        <condition>
+          <set token="hive_type">param.th_type="$th_type$"</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="th_unique_id" searchWhenChanged="False">
+      <label>th_unique_id</label>
+      <initialValue></initialValue>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_unique"></set>
+        </condition>
+        <condition>
+          <set token="hive_unique">param.th_unique_id="$th_unique_id$"</set>
+        </condition>
+      </change>
+    </input>
+    <input type="time" token="GlobalTimePicker">
+      <label>Time range for sample search</label>
+      <default>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="sample_query" searchWhenChanged="False">
+      <label>Paste your sample query here</label>
+      <initialValue>| makeresults | eval ip="1.1.1.1"</initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Create an alert in TheHive. Once the result is displayed below, an alert should have been created in TheHive. If not check logs below</title>
+      <table>
+        <search>
+          <query>$sample_query$
+| sendalert thehive_ce_alert param.th_instance=$hive_instance$ param.th_severity=$th_severity$ param.th_tlp=$th_tlp$ param.th_pap=$th_pap$ $hive_template$ $hive_description$ $hive_source$ $hive_title$ $hive_tags$ $hive_type$ $hive_unique$</query>
+          <earliest>$LogTimePicker.earliest$</earliest>
+          <latest>$LogTimePicker.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>
