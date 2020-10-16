@@ -1,0 +1,84 @@
+<form>
+  <label>Overview</label>
+  <fieldset submitButton="false">
+    <input type="time" token="TimePicker" searchWhenChanged="true">
+      <label>Time</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="hive_instance" searchWhenChanged="true">
+      <label>hive_instance</label>
+      <fieldForLabel>thehive_instance</fieldForLabel>
+      <fieldForValue>thehive_instance</fieldForValue>
+      <search>
+        <query>| inputlookup thehive_instance_list.csv
+| fields thehive_instance</query>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="dropdown" token="endpoint" searchWhenChanged="true">
+      <label>endpoint</label>
+      <choice value="alert">alert</choice>
+      <choice value="case">case</choice>
+      <default>alert</default>
+      <initialValue>alert</initialValue>
+    </input>
+    <input type="text" token="object_id" searchWhenChanged="true">
+      <label>object ID</label>
+      <prefix>/</prefix>
+    </input>
+    <input type="text" token="range" searchWhenChanged="true">
+      <label>range</label>
+      <default>0-10</default>
+      <initialValue>0-10</initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>lookup table thehive_instance_list.csv</title>
+      <table>
+        <search>
+          <query>| inputlookup thehive_instance_list.csv
+| table thehive_instance, thehive_url, thehive_api_key_name, thehive_verifycert, client_cert_full_path, thehive_use_proxy, client_use_cert, thehive_ca_full_path</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Custom command hivecollect</title>
+      <event>
+        <search>
+          <query>| hivecollect hive_instance=$hive_instance$ endpoint=$endpoint$ range=$range$</query>
+          <earliest>$TimePicker.earliest$</earliest>
+          <latest>$TimePicker.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="list.drilldown">none</option>
+        <option name="list.wrap">1</option>
+        <option name="maxLines">5</option>
+        <option name="raw.drilldown">full</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">0</option>
+        <option name="table.drilldown">all</option>
+        <option name="table.sortDirection">asc</option>
+        <option name="table.wrap">1</option>
+        <option name="type">list</option>
+      </event>
+    </panel>
+  </row>
+</form>
