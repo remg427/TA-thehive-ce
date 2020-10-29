@@ -3,6 +3,9 @@ RELEASE NOTE
 
 for latest release check see more on https://github.com/remg427/TA-thehive-ce
 
+Version 1.1.3 - October 29, 2020
+- fix #4 for cloud vetting
+
 Version 1.1.2 - October 16, 2020
 - remove unused library for Cloud vetting
 - dashboard Overview

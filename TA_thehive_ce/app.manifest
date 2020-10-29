@@ -5,7 +5,7 @@
     "id": {
       "group": null,
       "name": "TA_thehive_ce",
-      "version": "1.1.2"
+      "version": "1.1.3"
     },
     "author": [
       {
@@ -14,7 +14,7 @@
         "company": null
       }
     ],
-    "releaseDate": "2020-10-16",
+    "releaseDate": "2020-10-29",
     "description": "TA TheHive Cloud Edition",
     "classification": {
       "intendedAudience": null,
