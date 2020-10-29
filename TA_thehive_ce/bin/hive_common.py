@@ -327,9 +327,6 @@ Please check install instructions and edit the lookup with your parameters."""
                 "https": "https" + proxy_url
             }
 
-    # log config taken from lookup table
-    helper.log_debug("[HC413] config_args: {}".format(json.dumps(config_args)))
-
     # get clear version of thehive_key
     config_args['thehive_key'] = None
     # from the thehive_api_key defined in the lookup table
