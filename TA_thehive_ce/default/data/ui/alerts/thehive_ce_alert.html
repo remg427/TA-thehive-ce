@@ -81,14 +81,14 @@
     </div>
 </div>
 <div class="control-group">
-    <label class="control-label" for="thehive_ce_alert_th_onlyDT">Non-listed fields</label>
+    <label class="control-label" for="thehive_ce_alert_th_scope">Scope <span class="required">*</span> </label>
     <div class="controls">
-<select name="action.thehive_ce_alert.param.th_onlyDT" id="thehive_ce_alert_th_onlyDT">
-        <option value="Listed">Use only fields in thehive_datatypes.csv</option>
-        <option value="All">Add all fields to the alert (default dataType is other)</option>
+<select name="action.thehive_ce_alert.param.th_scope" id="thehive_ce_alert_th_scope">
+        <option value="0">Include only listed fields in thehive_datatypes.csv</option>
+        <option value="1">Include all fields (default datatype is 'other')</option>
 </select>
                 <span class="help-block"> 
-                    Select whether processing only listed fields in thehive_datatypes.csv or not.
+                    Select the scope for result fields. Default is all fields.
                 </span>
     </div>
 </div>

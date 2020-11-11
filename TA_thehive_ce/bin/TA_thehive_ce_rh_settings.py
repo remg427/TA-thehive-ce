@@ -121,6 +121,26 @@ fields_additional_parameters = [
             max_len=32,
             min_len=0,
         )
+    ),
+    field.RestField(
+        'thehive_api_key4',
+        required=False,
+        encrypted=True,
+        default='',
+        validator=validator.String(
+            max_len=32,
+            min_len=0,
+        )
+    ),
+    field.RestField(
+        'thehive_api_key5',
+        required=False,
+        encrypted=True,
+        default='',
+        validator=validator.String(
+            max_len=32,
+            min_len=0,
+        )
     )
 ]
 model_additional_parameters = RestModel(fields_additional_parameters, name='additional_parameters')

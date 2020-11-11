@@ -1,9 +1,10 @@
 <nav search_view="search" color="#ffde63">
-	<view name="overview" label="Overview" default="true"/>
-	<collection label="TheHive CE alerts">
-		<view name="thehive_ce_alert_demonstrator" label="Creete TheHive CE Alert"/>
+	<view name="thehive_overview" label="Overview" default="true"/>
+	<collection label="TheHive CE">
+		<view name="thehive_ce_hivecollect" label="Custom command hivecollect"/>
+		<view name="thehive_ce_hiverest" label="Custom command hiverest"/>
+		<view name="thehive_ce_alert_demonstrator" label="Creete TheHive CE alert"/>
 		<view name="thehive_ce_alert_logs" label="TheHive CE Alert logs"/>
-		<view name="alerts" />
 	</collection>
 	<collection label="Search">
 		<view name="search" />

@@ -188,6 +188,40 @@
                             "type": "text", 
                             "required": false, 
                             "encrypted": true
+                        },
+                        {
+                            "label": "thehive_api_key4", 
+                            "field": "thehive_api_key4", 
+                            "validators": [
+                                {
+                                    "minLength": 0, 
+                                    "maxLength": 8192, 
+                                    "errorMsg": "Max length of password is 8192", 
+                                    "type": "string"
+                                }
+                            ], 
+                            "defaultValue": "", 
+                            "help": "You may define additional API keys if you have additional instances of TheHive", 
+                            "type": "text", 
+                            "required": false, 
+                            "encrypted": true
+                        }, 
+                        {
+                            "label": "thehive_api_key5", 
+                            "field": "thehive_api_key5", 
+                            "validators": [
+                                {
+                                    "minLength": 0, 
+                                    "maxLength": 8192, 
+                                    "errorMsg": "Max length of password is 8192", 
+                                    "type": "string"
+                                }
+                            ], 
+                            "defaultValue": "", 
+                            "help": "You may define additional API keys if you have additional instances of TheHive", 
+                            "type": "text", 
+                            "required": false, 
+                            "encrypted": true
                         }
                     ], 
                     "name": "additional_parameters", 

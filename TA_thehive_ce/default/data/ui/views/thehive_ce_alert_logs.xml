@@ -12,23 +12,16 @@
   <row>
     <panel>
       <title>Logs related to alert creation in TheHive</title>
-      <table>
-        <title>(index=_* OR index=cim_*) sourcetype="ta:thehive:ce:log"</title>
+      <event>
+        <title>(index=_* OR index=cim_*) (sourcetype="modular_alerts:thehive_ce_alert" OR sourcetype="ta:thehive:ce:log")</title>
         <search>
-          <query>(index=_* OR index=cim_*) sourcetype="ta:thehive:ce:log"</query>
+          <query>(index=_* OR index=cim_*) (sourcetype="modular_alerts:thehive_ce_alert" OR sourcetype="ta:thehive:ce:log")</query>
           <earliest>$GlobalTimePicker.earliest$</earliest>
           <latest>$GlobalTimePicker.latest$</latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">none</option>
-        <option name="percentagesRow">false</option>
-        <option name="refresh.display">progressbar</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
-      </table>
+        <option name="list.drilldown">none</option>
+      </event>
     </panel>
   </row>
 </form>
