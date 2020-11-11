@@ -1,13 +1,5 @@
 <form>
   <init>
-    <set token="hive_template"></set>
-    <set token="hive_description"></set>
-    <set token="hive_source"></set>
-    <set token="hive_tags"></set>
-    <set token="hive_title"></set>
-    <set token="hive_timestamp"></set>
-    <set token="hive_type"></set>
-    <set token="hive_unique"></set>
     <unset token="launch_alert"></unset>
     <set token="sample_query">| makeresults | eval ip="192.168.1.1", th_msg="message from row", th_inline_tags="tag1,tag2"</set>
   </init>
@@ -59,6 +51,7 @@
           <set token="hive_template">param.th_case_template="$th_case_template$"</set>
         </condition>
       </change>
+      <initialValue></initialValue>
     </input>
     <input type="text" token="th_description" searchWhenChanged="true">
       <label>th_description</label>
@@ -70,6 +63,7 @@
           <set token="hive_description">param.th_description="$th_description$"</set>
         </condition>
       </change>
+      <initialValue></initialValue>
     </input>
     <input type="text" token="th_source" searchWhenChanged="true">
       <label>th_source</label>
@@ -81,6 +75,7 @@
           <set token="hive_source">param.th_source="$th_source$"</set>
         </condition>
       </change>
+      <initialValue></initialValue>
     </input>
     <input type="text" token="th_tags" searchWhenChanged="true">
       <label>th_tags</label>
@@ -92,6 +87,7 @@
           <set token="hive_tags">param.th_tags="$th_tags$"</set>
         </condition>
       </change>
+      <initialValue></initialValue>
     </input>
     <input type="text" token="th_timestamp" searchWhenChanged="true">
       <label>th_timestamp</label>
@@ -103,6 +99,7 @@
           <set token="hive_timestamp">param.th_timestamp="$th_timestamp$"</set>
         </condition>
       </change>
+      <initialValue></initialValue>
     </input>
     <input type="text" token="th_title" searchWhenChanged="true">
       <label>th_title</label>
@@ -114,6 +111,7 @@
           <set token="hive_title">param.th_title="$th_title$"</set>
         </condition>
       </change>
+      <initialValue></initialValue>
     </input>
     <input type="text" token="th_type" searchWhenChanged="true">
       <label>th_type</label>
@@ -125,6 +123,7 @@
           <set token="hive_type">param.th_type="$th_type$"</set>
         </condition>
       </change>
+      <initialValue></initialValue>
     </input>
     <input type="text" token="th_unique_id" searchWhenChanged="true">
       <label>th_unique_id</label>
@@ -136,6 +135,7 @@
           <set token="hive_unique">param.th_unique_id="$th_unique_id$"</set>
         </condition>
       </change>
+      <initialValue></initialValue>
     </input>
     <input type="time" token="GlobalTimePicker" searchWhenChanged="true">
       <label>Time range for sample search</label>

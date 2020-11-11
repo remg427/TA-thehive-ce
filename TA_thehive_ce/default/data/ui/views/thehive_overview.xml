@@ -121,6 +121,27 @@
   </row>
   <row>
     <panel>
+      <title>lookup thehjive_datatypes.csv</title>
+      <table>
+        <search>
+          <query>| inputlookup thehive_datatypes.csv
+| table field_name, field_type, datatype, description, regex</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
       <title>Recent logs on TheHive alert creation (last 60 minutes)</title>
       <event>
         <search>
