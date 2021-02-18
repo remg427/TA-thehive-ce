@@ -137,11 +137,7 @@ def create_alert(helper, config, app_name):
         artifactTags = []
         if 'th_inline_tags' in row:
             # grabs that field's value and assigns it to
-            inline_tags = str(row.pop("th_inline_tags"))
-            if "," in inline_tags:
-                artifactTags = inline_tags.split(',')
-            else:
-                artifactTags = [inline_tags]
+            artifactTags = list(str(row.pop("th_inline_tags")).split(","))
         # check if the field th_msg exists and strip it from the row.
         # The value will be used as message attached to artifacts
         if 'th_msg' in row:
@@ -213,7 +209,7 @@ def create_alert(helper, config, app_name):
                         cTLP = OBSERVABLE_TLP[dType[1]]
                         cTags.append(OBSERVABLE_TLP[str(cTLP)])
                     else:
-                        custom_msg = str(dType[1])
+                        cTags.append(str(dType[1]).replace(" ", "_"))
                 if key in data_type:
                     helper.log_debug('[HA322] key is an artifact: {} '.format(key))
                     artifact_key = data_type[key]
@@ -280,11 +276,7 @@ def create_alert(helper, config, app_name):
                     artifact_key = 'other'
 
                 if artifact_key not in [None, '']:
-                    cMsg = 'field: ' + str(key)
-                    if custom_msg not in [None, '']:
-                        cMsg = custom_msg + ' - ' + cMsg
-                    if artifactMessage not in [None, '']:
-                        cMsg = artifactMessage + ' - ' + cMsg
+                    cTags.append('field:' + str(key))
                     if '\n' in value:  # was a multivalue field
                         helper.log_debug('[HA324] value is not a simple string: {} '.format(value))
                         values = value.split('\n')
@@ -292,7 +284,7 @@ def create_alert(helper, config, app_name):
                             if val != "":
                                 artifact = dict(dataType=artifact_key,
                                                 data=str(val),
-                                                message=cMsg,
+                                                message=artifactMessage,
                                                 tags=cTags
                                                 )
                                 if cTLP != '':
@@ -305,7 +297,7 @@ def create_alert(helper, config, app_name):
                     else:
                         artifact = dict(dataType=artifact_key,
                                         data=str(value),
-                                        message=cMsg,
+                                        message=artifactMessage,
                                         tags=cTags
                                         )
                         if cTLP != '':
