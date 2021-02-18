@@ -17,7 +17,7 @@ import splunklib.client as client
 
 __author__ = "Remi Seguy"
 __license__ = "LGPLv3"
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 __maintainer__ = "Remi Seguy"
 __email__ = "remg427@gmail.com"
 
@@ -113,7 +113,7 @@ def create_alert(helper, config, app_name):
     for row in events:
         # Splunk makes a bunch of dumb empty multivalue fields
         # we filter those out here
-        row = {key: value for key, value in row.items() if not key.startswith("__mv_")}
+        row = {key: value for key, value in row.items() if not key.startswith("__mv_") and key not in ["rid"]}
         # find the field name used for a unique identifier
         sourceRef = alert_refererence
         if config['unique'] in row:

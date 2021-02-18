@@ -1,7 +1,7 @@
 <form>
   <init>
     <unset token="launch_alert"></unset>
-    <set token="sample_query">| makeresults | eval ip="192.168.1.1", th_msg="message from row", th_inline_tags="tag1,tag2"</set>
+    <set token="sample_query">| makeresults | eval domain="www.example.com", th_msg="message from row", th_inline_tags="tag1,tag2"</set>
   </init>
   <label>TheHive CE alert</label>
   <fieldset submitButton="true" autoRun="false">
@@ -146,7 +146,7 @@
     </input>
     <input type="text" token="sample_query" searchWhenChanged="true">
       <label>Paste your sample query here</label>
-      <initialValue>| makeresults | eval ip="192.168.1.1", th_msg="message from row", th_inline_tags="tag1,tag2"</initialValue>
+      <initialValue>| makeresults | eval domain="www.example.com", th_msg="message from row", th_inline_tags="tag1,tag2"</initialValue>
     </input>
     <input type="radio" token="launch_alert" searchWhenChanged="true">
       <label>Launch alert action</label>
