@@ -4,6 +4,7 @@ RELEASE NOTE
 for latest release check see more on https://github.com/remg427/TA-thehive-ce
 Version 1.1.5 - February 18, 2021
 - #20 remove field rid from created alert
+- #21 add tags per observable
 
 Version 1.1.4 - November 5, 2020
 - improve and correct dashboards
