@@ -285,24 +285,6 @@ Please check install instructions and edit the lookup with your parameters."""
         helper.log_error("[HC412] lookups/thehive_instance_list.csv does not contain configuration for instance {} ".format(th_instance))
         return None
 
-    # get proxy parameters if any
-    config_args['proxies'] = dict()
-    if use_proxy is True:
-        proxy = helper.get_proxy()
-        if proxy:
-            proxy_url = '://'
-            if 'proxy_username' in proxy:
-                if proxy['proxy_username'] not in ['', None]:
-                    proxy_url = proxy_url + \
-                        proxy['proxy_username'] + ':' \
-                        + proxy['proxy_password'] + '@'
-            proxy_url = proxy_url + proxy['proxy_url'] + \
-                ':' + proxy['proxy_port'] + '/'
-            config_args['proxies'] = {
-                "http": "http" + proxy_url,
-                "https": "https" + proxy_url
-            }
-
     # get clear version of thehive_key
     config_args['thehive_key'] = None
     # from the thehive_api_key defined in the lookup table
@@ -314,8 +296,42 @@ Please check install instructions and edit the lookup with your parameters."""
             )
             config_args['thehive_key'] = str(th_instance_key[api_key_name])
             helper.log_info('[HC414] thehive_key found for instance  {}'.format(th_instance))
+        username = credential.content.get('username')
+        if 'proxy' in username:
+            clear_credentials = credential.content.get('clear_password')
+            if 'proxy_password' in clear_credentials:
+                proxy_creds = json.loads(clear_credentials)
+                proxy_clear_password = str(proxy_creds['proxy_password'])
     if config_args['thehive_key'] is None:
         helper.log_error('[HC415] thehive_key NOT found for instance  {}'.format(th_instance))
         return None
+
+    # get proxy parameters if any
+    config_args['proxies'] = dict()
+    if use_proxy is True:
+        proxy = None
+        settings_file = os.path.join(
+            os.environ['SPLUNK_HOME'], 'etc', 'apps', app_name,
+            'local', 'ta_thehive_ce_settings.conf'
+        )
+        if os.path.exists(settings_file):
+            app_settings = cli.readConfFile(settings_file)
+            for name, content in list(app_settings.items()):
+                if 'proxy' in name:
+                    proxy = content
+        if proxy:
+            proxy_url = '://'
+            if 'proxy_username' in proxy \
+               and proxy_clear_password is not None:
+                if proxy['proxy_username'] not in ['', None]:
+                    proxy_url = proxy_url + \
+                        proxy['proxy_username'] + ':' \
+                        + proxy_clear_password + '@'
+            proxy_url = proxy_url + proxy['proxy_url'] + \
+                ':' + proxy['proxy_port'] + '/'
+            config_args['proxies'] = {
+                "http": "http" + proxy_url,
+                "https": "https" + proxy_url
+            }
 
     return config_args

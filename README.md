@@ -1,5 +1,5 @@
 # TA_thehive_ce
-**IMPORTANT**: version 1.1.5 is the last version of this TA. Please refer to [TheHive/Cortex](https://splunkbase.splunk.com/app/5329/) that includes similar features and more.  
+**IMPORTANT**: version 1.1.6 is the last version of this TA. Please refer to [TheHive/Cortex](https://splunkbase.splunk.com/app/5329/) that includes similar features and more.  
 
 This TA provides:  
 - an adaptative response/alert action to create an alert on [TheHive](https://thehive-project.org).  

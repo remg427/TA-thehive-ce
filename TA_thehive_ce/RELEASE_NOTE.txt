@@ -2,6 +2,9 @@ RELEASE NOTE
 ----------------------------------------------------------------------------
 
 for latest release check see more on https://github.com/remg427/TA-thehive-ce
+Version 1.1.6 - February 22, 2021
+- fix proxy settings
+
 Version 1.1.5 - February 18, 2021
 - #20 remove field rid from created alert
 - #21 add tags per observable
