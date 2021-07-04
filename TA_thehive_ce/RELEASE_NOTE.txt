@@ -2,6 +2,17 @@ RELEASE NOTE
 ----------------------------------------------------------------------------
 
 for latest release check see more on https://github.com/remg427/TA-thehive-ce
+Version 1.1.6 - February 22, 2021
+- fix proxy settings
+
+Version 1.1.5 - February 18, 2021
+- #20 remove field rid from created alert
+- #21 add tags per observable
+
+Version 1.1.4 - November 5, 2020
+- improve and correct dashboards
+- new option for hive collect sort=(Array)
+- new custom command hiverest
 
 Version 1.1.3 - October 29, 2020
 - fix #16 for cloud vetting

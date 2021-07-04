@@ -1,7 +1,11 @@
 <form>
+  <init>
+    <unset token="launch_alert"></unset>
+    <set token="sample_query">| makeresults | eval domain="www.example.com", th_msg="message from row", th_inline_tags="tag1,tag2"</set>
+  </init>
   <label>TheHive CE alert</label>
-  <fieldset submitButton="true">
-    <input type="dropdown" token="hive_instance" searchWhenChanged="False">
+  <fieldset submitButton="true" autoRun="false">
+    <input type="dropdown" token="hive_instance" searchWhenChanged="true">
       <label>hive_instance</label>
       <fieldForLabel>thehive_instance</fieldForLabel>
       <fieldForValue>thehive_instance</fieldForValue>
@@ -12,29 +16,33 @@
         <latest>now</latest>
       </search>
     </input>
-    <input type="dropdown" token="th_severity" searchWhenChanged="False">
+    <input type="dropdown" token="th_severity" searchWhenChanged="true">
       <label>th_severity</label>
       <choice value="1">Low</choice>
       <choice value="2">Medium</choice>
       <choice value="3">High</choice>
     </input>
-    <input type="dropdown" token="th_tlp" searchWhenChanged="false">
+    <input type="dropdown" token="th_tlp" searchWhenChanged="true">
       <label>TLP (th_tlp)</label>
       <choice value="3">TLP:RED</choice>
       <choice value="2">TLP:AMBER</choice>
       <choice value="1">TLP:GREEN</choice>
       <choice value="0">TLP:WHITE</choice>
     </input>
-    <input type="dropdown" token="th_pap" searchWhenChanged="False">
+    <input type="dropdown" token="th_pap" searchWhenChanged="true">
       <label>PAP (th_pap)</label>
       <choice value="3">PAP:RED</choice>
       <choice value="2">PAP:AMBER</choice>
       <choice value="1">PAP:GREEN</choice>
       <choice value="0">PAP:WHITE</choice>
     </input>
-    <input type="text" token="th_case_template" searchWhenChanged="False">
+    <input type="radio" token="th_scope" searchWhenChanged="true">
+      <label>Scope </label>
+      <choice value="0">Include only listed fields in thehive_datatypes.csv</choice>
+      <choice value="1">Include all fields (default datatype is 'other')</choice>
+    </input>
+    <input type="text" token="th_case_template" searchWhenChanged="true">
       <label>th_case_template</label>
-      <initialValue></initialValue>
       <change>
         <condition match="$value$=&quot;&quot;">
           <set token="hive_template"></set>
@@ -43,10 +51,10 @@
           <set token="hive_template">param.th_case_template="$th_case_template$"</set>
         </condition>
       </change>
-    </input>
-    <input type="text" token="th_description" searchWhenChanged="False">
-      <label>th_description</label>
       <initialValue></initialValue>
+    </input>
+    <input type="text" token="th_description" searchWhenChanged="true">
+      <label>th_description</label>
       <change>
         <condition match="$value$=&quot;&quot;">
           <set token="hive_description"></set>
@@ -55,17 +63,10 @@
           <set token="hive_description">param.th_description="$th_description$"</set>
         </condition>
       </change>
-    </input>
-    <input type="dropdown" token="th_onlyDTp" searchWhenChanged="false">
-      <label>th_onlyDT</label>
-      <choice value="Listed">Use only fields in thehive_datatypes.csv</choice>
-      <choice value="All">Add all fields to the alert (default dataType is other)</choice>
-      <default>All</default>
-      <initialValue>All</initialValue>
-    </input>
-    <input type="text" token="th_source" searchWhenChanged="False">
-      <label>th_source</label>
       <initialValue></initialValue>
+    </input>
+    <input type="text" token="th_source" searchWhenChanged="true">
+      <label>th_source</label>
       <change>
         <condition match="$value$=&quot;&quot;">
           <set token="hive_source"></set>
@@ -74,22 +75,10 @@
           <set token="hive_source">param.th_source="$th_source$"</set>
         </condition>
       </change>
-    </input>
-    <input type="text" token="th_title" searchWhenChanged="False">
-      <label>th_title</label>
       <initialValue></initialValue>
-      <change>
-        <condition match="$value$=&quot;&quot;">
-          <set token="hive_title"></set>
-        </condition>
-        <condition>
-          <set token="hive_title">param.th_title="$th_title$"</set>
-        </condition>
-      </change>
     </input>
-    <input type="text" token="th_tags" searchWhenChanged="False">
+    <input type="text" token="th_tags" searchWhenChanged="true">
       <label>th_tags</label>
-      <initialValue></initialValue>
       <change>
         <condition match="$value$=&quot;&quot;">
           <set token="hive_tags"></set>
@@ -98,10 +87,34 @@
           <set token="hive_tags">param.th_tags="$th_tags$"</set>
         </condition>
       </change>
-    </input>
-    <input type="text" token="th_type" searchWhenChanged="False">
-      <label>th_type</label>
       <initialValue></initialValue>
+    </input>
+    <input type="text" token="th_timestamp" searchWhenChanged="true">
+      <label>th_timestamp</label>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_timestamp"></set>
+        </condition>
+        <condition>
+          <set token="hive_timestamp">param.th_timestamp="$th_timestamp$"</set>
+        </condition>
+      </change>
+      <initialValue></initialValue>
+    </input>
+    <input type="text" token="th_title" searchWhenChanged="true">
+      <label>th_title</label>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_title"></set>
+        </condition>
+        <condition>
+          <set token="hive_title">param.th_title="$th_title$"</set>
+        </condition>
+      </change>
+      <initialValue></initialValue>
+    </input>
+    <input type="text" token="th_type" searchWhenChanged="true">
+      <label>th_type</label>
       <change>
         <condition match="$value$=&quot;&quot;">
           <set token="hive_type"></set>
@@ -110,10 +123,10 @@
           <set token="hive_type">param.th_type="$th_type$"</set>
         </condition>
       </change>
-    </input>
-    <input type="text" token="th_unique_id" searchWhenChanged="False">
-      <label>th_unique_id</label>
       <initialValue></initialValue>
+    </input>
+    <input type="text" token="th_unique_id" searchWhenChanged="true">
+      <label>th_unique_id</label>
       <change>
         <condition match="$value$=&quot;&quot;">
           <set token="hive_unique"></set>
@@ -122,33 +135,91 @@
           <set token="hive_unique">param.th_unique_id="$th_unique_id$"</set>
         </condition>
       </change>
+      <initialValue></initialValue>
     </input>
-    <input type="time" token="GlobalTimePicker">
+    <input type="time" token="GlobalTimePicker" searchWhenChanged="true">
       <label>Time range for sample search</label>
       <default>
         <earliest>-15m</earliest>
         <latest>now</latest>
       </default>
     </input>
-    <input type="text" token="sample_query" searchWhenChanged="False">
+    <input type="text" token="sample_query" searchWhenChanged="true">
       <label>Paste your sample query here</label>
-      <initialValue>| makeresults | eval ip="1.1.1.1"</initialValue>
+      <initialValue>| makeresults | eval domain="www.example.com", th_msg="message from row", th_inline_tags="tag1,tag2"</initialValue>
+    </input>
+    <input type="radio" token="launch_alert" searchWhenChanged="true">
+      <label>Launch alert action</label>
+      <choice value="True">Run</choice>
+      <choice value="False">Preparation</choice>
+      <change>
+        <condition match="$value$=&quot;False&quot;">
+          <unset token="launch_alert"></unset>
+        </condition>
+      </change>
+      <default>False</default>
+      <initialValue>False</initialValue>
     </input>
   </fieldset>
   <row>
+    <html>
+      <p>
+        In addition to parameters above, you can also set additional inline fields
+      </p>
+        <ul>
+          <li>th_msg: a string that will be appended to all artifacts on the same row.</li>
+          <li>th_inline_tags: comma-separated list of tags to add to any artifact on the same row.</li>
+        </ul>
+    </html>
+  </row>
+  <row>
     <panel>
-      <title>Create an alert in TheHive. Once the result is displayed below, an alert should have been created in TheHive. If not check logs below</title>
+      <title>Create an alert in TheHive. If result looks good, select "run" above</title>
       <table>
         <search>
           <query>$sample_query$
-| sendalert thehive_ce_alert param.th_instance=$hive_instance$ param.th_severity=$th_severity$ param.th_tlp=$th_tlp$ param.th_pap=$th_pap$ $hive_template$ $hive_description$ $hive_source$ $hive_title$ $hive_tags$ $hive_type$ $hive_unique$</query>
-          <earliest>$LogTimePicker.earliest$</earliest>
-          <latest>$LogTimePicker.latest$</latest>
+| eval param_case_template="$th_case_template$", param_description="$th_description$", param_source="$th_source$", param_tags="$th_tags$", param_timestamp="$th_timestamp$", param_title="$th_title$", param_type="$th_type$", param_unique_id="$th_unique_id$"
+| eval sendalert_cmd="sendalert thehive_ce_alert param.th_instance=$hive_instance$ param.th_severity=$th_severity$ param.th_tlp=$th_tlp$ param.th_pap=$th_pap$ param.th_scope=$th_scope$"
+| eval sendalert_cmd=if(param_case_template!="", sendalert_cmd+" param.th_case_template=\""+param_case_template+"\"",sendalert_cmd)
+| eval sendalert_cmd=if(param_description!="", sendalert_cmd+" param.th_description=\""+param_description+"\"",sendalert_cmd)
+| eval sendalert_cmd=if(param_source!="", sendalert_cmd+" param.th_source=\""+param_source+"\"",sendalert_cmd)
+| eval sendalert_cmd=if(param_tags!="", sendalert_cmd+" param.th_tags=\""+param_tags+"\"",sendalert_cmd)
+| eval sendalert_cmd=if(param_timestamp!="", sendalert_cmd+" param.th_timestamp=\""+param_timestamp+"\"",sendalert_cmd)
+| eval sendalert_cmd=if(param_title!="", sendalert_cmd+" param.th_title=\""+param_title+"\"",sendalert_cmd)
+| eval sendalert_cmd=if(param_type!="", sendalert_cmd+" param.th_type=\""+param_type+"\"",sendalert_cmd)
+| eval sendalert_cmd=if(param_unique_id!="", sendalert_cmd+" param.th_unique_id=\""+param_unique_id+"\"", sendalert_cmd)
+| fields - param_*</query>
+          <earliest>$GlobalTimePicker.earliest$</earliest>
+          <latest>$GlobalTimePicker.latest$</latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">20</option>
+        <option name="count">5</option>
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$launch_alert$">
+      <title>Create an alert in TheHive. Once the result is displayed below, an alert should have been created in TheHive. If not check logs.</title>
+      <table>
+        <search>
+          <query>$sample_query$
+| eval switch="$launch_alert$"
+| where switch=="True"
+| fields - switch
+| sendalert thehive_ce_alert param.th_instance=$hive_instance$ param.th_severity=$th_severity$ param.th_tlp=$th_tlp$ param.th_pap=$th_pap$ param.th_scope=$th_scope$ $hive_template$ $hive_description$ $hive_source$ $hive_tags$ $hive_timestamp$ $hive_title$ $hive_type$ $hive_unique$</query>
+          <earliest>$GlobalTimePicker.earliest$</earliest>
+          <latest>$GlobalTimePicker.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
         <option name="percentagesRow">false</option>
         <option name="refresh.display">progressbar</option>
         <option name="rowNumbers">false</option>

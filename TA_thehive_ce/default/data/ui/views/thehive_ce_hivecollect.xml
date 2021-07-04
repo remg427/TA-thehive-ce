@@ -1,5 +1,11 @@
 <form>
-  <label>Overview</label>
+  <init>
+    <set token="hive_endpoint"></set>
+    <set token="hive_objectid"></set>
+    <set token="hive_range"></set>
+    <set token="hive_sort"></set>
+  </init>
+  <label>TheHive CE custom command hivecollect</label>
   <fieldset submitButton="false">
     <input type="time" token="TimePicker" searchWhenChanged="true">
       <label>Time</label>
@@ -9,7 +15,7 @@
       </default>
     </input>
     <input type="dropdown" token="hive_instance" searchWhenChanged="true">
-      <label>hive_instance</label>
+      <label>hive_instance*</label>
       <fieldForLabel>thehive_instance</fieldForLabel>
       <fieldForValue>thehive_instance</fieldForValue>
       <search>
@@ -21,19 +27,60 @@
     </input>
     <input type="dropdown" token="endpoint" searchWhenChanged="true">
       <label>endpoint</label>
+      <choice value="default">(default)</choice>
       <choice value="alert">alert</choice>
       <choice value="case">case</choice>
-      <default>alert</default>
-      <initialValue>alert</initialValue>
+      <default>default</default>
+      <initialValue>default</initialValue>
+      <change>
+        <condition match="$value$=&quot;default&quot;">
+          <set token="hive_endpoint"></set>
+        </condition>
+        <condition match="$value$=&quot;alert&quot;">
+          <set token="hive_endpoint">endpoint=alert</set>
+        </condition>
+        <condition match="$value$=&quot;case&quot;">
+          <set token="hive_endpoint">endpoint=case</set>
+        </condition>
+      </change>
     </input>
     <input type="text" token="object_id" searchWhenChanged="true">
       <label>object ID</label>
-      <prefix>/</prefix>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_objectid"></set>
+        </condition>
+        <condition>
+          <set token="hive_objectid">objectid="$object_id$"</set>
+        </condition>
+      </change>      
     </input>
     <input type="text" token="range" searchWhenChanged="true">
       <label>range</label>
       <default>0-10</default>
       <initialValue>0-10</initialValue>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_range"></set>
+        </condition>
+        <condition match="$value$=&quot;0-10&quot;">
+          <set token="hive_range"></set>
+        </condition>
+        <condition>
+          <set token="hive_range">range="$range$"</set>
+        </condition>
+      </change>      
+    </input>
+    <input type="text" token="sort" searchWhenChanged="true">
+      <label>sort</label>
+      <change>
+        <condition match="$value$=&quot;&quot;">
+          <set token="hive_sort"></set>
+        </condition>
+        <condition>
+          <set token="hive_range">sort="$sort$"</set>
+        </condition>
+      </change>      
     </input>
   </fieldset>
   <row>
@@ -62,7 +109,7 @@
       <title>Custom command hivecollect</title>
       <event>
         <search>
-          <query>| hivecollect hive_instance=$hive_instance$ endpoint=$endpoint$ range=$range$</query>
+          <query>| hivecollect hive_instance=$hive_instance$ $hive_endpoint$ $hive_objectid$ $hive_range$ $hive_sort$</query>
           <earliest>$TimePicker.earliest$</earliest>
           <latest>$TimePicker.latest$</latest>
           <sampleRatio>1</sampleRatio>

@@ -32,6 +32,10 @@ class AlertActionWorkerthehive_ce_alert(ModularAlertBase):
         if not self.get_param("th_pap"):
             self.log_error('th_pap is a mandatory parameter, but its value is None.')
             return False
+
+        if not self.get_param("th_scope"):
+            self.log_error('th_scope is a mandatory parameter, but its value is None.')
+            return False
         return True
 
     def process_event(self, *args, **kwargs):

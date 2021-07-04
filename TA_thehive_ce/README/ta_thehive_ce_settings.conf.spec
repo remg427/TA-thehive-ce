@@ -14,3 +14,5 @@ loglevel =
 thehive_api_key1 = 
 thehive_api_key2 = 
 thehive_api_key3 = 
+thehive_api_key4 = 
+thehive_api_key5 = 

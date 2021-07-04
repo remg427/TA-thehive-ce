@@ -37,7 +37,6 @@ def create_datatype_lookup(helper, app_name):
     _SPLUNK_PATH = os.environ['SPLUNK_HOME']
     directory = os.path.join(
         _SPLUNK_PATH, 'etc', 'apps', app_name, 'lookups')
-    helper.log_debug("[HC101]---: {} ".format(directory))
     th_dt_filename = os.path.join(directory, 'thehive_datatypes.csv')
     if not os.path.exists(th_dt_filename):
         # file th_dt_filename.csv doesn't exist. Create the file
@@ -64,7 +63,6 @@ def create_instance_lookup(helper, app_name):
     _SPLUNK_PATH = os.environ['SPLUNK_HOME']
     directory = os.path.join(
         _SPLUNK_PATH, 'etc', 'apps', app_name, 'lookups')
-    helper.log_debug("[HC201]---: {} ".format(directory))
     th_list_filename = os.path.join(directory, 'thehive_instance_list.csv')
     if not os.path.exists(th_list_filename):
         # file thehive_instance_list.csv doesn't exist. Create the file
@@ -102,22 +100,15 @@ def get_datatype_dict(helper, config, app_name):
     directory = os.path.join(
         _SPLUNK_PATH, 'etc', 'apps', app_name, 'lookups'
     )
-    helper.log_debug("[HC301]---: {} ".format(directory))
     th_dt_filename = os.path.join(directory, 'thehive_datatypes.csv')
     if os.path.exists(th_dt_filename):
         try:
             # open the file with gzip lib, start making alerts
             # can with statements fail gracefully??
             fh = open(th_dt_filename, "rt")
-            helper.log_debug(
-                "[HC302] file {} is open with first try".format(th_dt_filename)
-            )
         except ValueError:
             # Workaround for Python 2.7 under Windows
             fh = gzip.open(th_dt_filename, "r")
-            helper.log_debug(
-                "[HC303] file {} is open with alternate".format(th_dt_filename)
-            )
         if fh is not None:
             try:
                 csv_reader = csv.DictReader(fh)
@@ -146,22 +137,15 @@ def get_customField_dict(helper, config, app_name):
     directory = os.path.join(
         _SPLUNK_PATH, 'etc', 'apps', app_name, 'lookups'
     )
-    helper.log_debug("[HC601]---: {} ".format(directory))
     th_dt_filename = os.path.join(directory, 'thehive_datatypes.csv')
     if os.path.exists(th_dt_filename):
         try:
             # open the file with gzip lib, start making alerts
             # can with statements fail gracefully??
             fh = open(th_dt_filename, "rt")
-            helper.log_debug(
-                "[HC602] file {} is open with first try".format(th_dt_filename)
-            )
         except ValueError:
             # Workaround for Python 2.7 under Windows
             fh = gzip.open(th_dt_filename, "r")
-            helper.log_debug(
-                "[HC603] file {} is open with alternate".format(th_dt_filename)
-            )
         if fh is not None:
             try:
                 csv_reader = csv.DictReader(fh)
@@ -216,7 +200,6 @@ def prepare_config(helper, app_name, th_instance, storage_passwords):
     directory = os.path.join(
         _SPLUNK_PATH, 'etc', 'apps', app_name, 'lookups'
     )
-    helper.log_debug("[HC401] ---: {} ".format(directory))
     csv_instance_list = os.path.join(directory, 'thehive_instance_list.csv')
     if os.path.exists(csv_instance_list):
         helper.log_info("[HC402] File {} exists".format(csv_instance_list))
@@ -225,12 +208,9 @@ def prepare_config(helper, app_name, th_instance, storage_passwords):
             # open the file with gzip lib, start making alerts
             # can with statements fail gracefully??
             th_list_fh = open(csv_instance_list, "rt")
-            helper.log_debug("[HC403] th_list {} open using first try".format(csv_instance_list))
         except ValueError:
             # Workaround for Python 2.7 under Windows
             th_list_fh = open(csv_instance_list, "r")
-            helper.log_debug("[HC404] th_list {} open using alternate".format(csv_instance_list))
-
         if th_list_fh is None:
             # something went wrong with opening the results file
             helper.log_error(
@@ -252,12 +232,8 @@ Please check install instructions and edit the lookup with your parameters."""
         # and other lines will read as a dict mapping the header
         # to the value
         config_reader = csv.DictReader(th_list_fh)
-        helper.log_debug("[HC408] config_reader is {}".format(config_reader))
         found_instance = False
         for row in config_reader:
-            helper.log_debug(
-                "[HC409] read row {} in config_reader".format(json.dumps(row))
-            )
             if found_instance is False and \
                'thehive_instance' in row and \
                'thehive_url' in row and \
@@ -278,10 +254,10 @@ Please check install instructions and edit the lookup with your parameters."""
                     config_args['thehive_url'] = th_url
                     api_key_name = row['thehive_api_key_name']
                     key_match = re.match(
-                        "^thehive_api_key(1|2|3)$", api_key_name
+                        "^thehive_api_key[1-5]$", api_key_name
                     )
                     if key_match is None:
-                        helper.log_error("[HC411] FATAL api_key_name must be 'thehive_api_key1' or 2 or 3")
+                        helper.log_error("[HC411] FATAL api_key_name must be 'thehive_api_keyX' with X=1 to 5")
                         return None
                     verifycert = str(row['thehive_verifycert'])
                     if verifycert == 'True' or verifycert == 'true':
@@ -309,24 +285,6 @@ Please check install instructions and edit the lookup with your parameters."""
         helper.log_error("[HC412] lookups/thehive_instance_list.csv does not contain configuration for instance {} ".format(th_instance))
         return None
 
-    # get proxy parameters if any
-    config_args['proxies'] = dict()
-    if use_proxy is True:
-        proxy = helper.get_proxy()
-        if proxy:
-            proxy_url = '://'
-            if 'proxy_username' in proxy:
-                if proxy['proxy_username'] not in ['', None]:
-                    proxy_url = proxy_url + \
-                        proxy['proxy_username'] + ':' \
-                        + proxy['proxy_password'] + '@'
-            proxy_url = proxy_url + proxy['proxy_url'] + \
-                ':' + proxy['proxy_port'] + '/'
-            config_args['proxies'] = {
-                "http": "http" + proxy_url,
-                "https": "https" + proxy_url
-            }
-
     # get clear version of thehive_key
     config_args['thehive_key'] = None
     # from the thehive_api_key defined in the lookup table
@@ -338,8 +296,42 @@ Please check install instructions and edit the lookup with your parameters."""
             )
             config_args['thehive_key'] = str(th_instance_key[api_key_name])
             helper.log_info('[HC414] thehive_key found for instance  {}'.format(th_instance))
+        username = credential.content.get('username')
+        if 'proxy' in username:
+            clear_credentials = credential.content.get('clear_password')
+            if 'proxy_password' in clear_credentials:
+                proxy_creds = json.loads(clear_credentials)
+                proxy_clear_password = str(proxy_creds['proxy_password'])
     if config_args['thehive_key'] is None:
         helper.log_error('[HC415] thehive_key NOT found for instance  {}'.format(th_instance))
         return None
+
+    # get proxy parameters if any
+    config_args['proxies'] = dict()
+    if use_proxy is True:
+        proxy = None
+        settings_file = os.path.join(
+            os.environ['SPLUNK_HOME'], 'etc', 'apps', app_name,
+            'local', 'ta_thehive_ce_settings.conf'
+        )
+        if os.path.exists(settings_file):
+            app_settings = cli.readConfFile(settings_file)
+            for name, content in list(app_settings.items()):
+                if 'proxy' in name:
+                    proxy = content
+        if proxy:
+            proxy_url = '://'
+            if 'proxy_username' in proxy \
+               and proxy_clear_password is not None:
+                if proxy['proxy_username'] not in ['', None]:
+                    proxy_url = proxy_url + \
+                        proxy['proxy_username'] + ':' \
+                        + proxy_clear_password + '@'
+            proxy_url = proxy_url + proxy['proxy_url'] + \
+                ':' + proxy['proxy_port'] + '/'
+            config_args['proxies'] = {
+                "http": "http" + proxy_url,
+                "https": "https" + proxy_url
+            }
 
     return config_args
